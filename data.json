@@ -1,0 +1,13 @@
+[
+    {
+        "object": "SOXRisk",
+        "id": 123,
+        "SistemFields": {
+            "Name": "Test123",
+            "Description": "This is a description"
+        },
+        "fields": {
+            "OPSS-Iss:Status": "Not Ready"
+        }
+    }
+]

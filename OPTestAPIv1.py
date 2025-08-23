@@ -4,7 +4,7 @@ import json
 from urllib.parse import urlparse
 import requests
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 def generate_base64(user, password):
     credenciais = f"{user}:{password}"
@@ -12,7 +12,7 @@ def generate_base64(user, password):
     return base64.b64encode(credenciais_bytes).decode("utf-8")
 
 class OPTestAPIv1():
-    def __init__(self, url):
+    def __init__(self, url, username, password):
         self.server_name = urlparse(url).netloc
         self.base_path = '/grc/api'
         self.session = requests.Session()
@@ -21,8 +21,6 @@ class OPTestAPIv1():
         else:
             self.protocol = 'https://'
         self.base_url = f'{self.protocol}{self.server_name}{self.base_path}'
-
-    def set_credentials(self, username, password):
         self.headers = {
             'Authorization': f"Basic {generate_base64(username, password)}",
             'content-type': "application/json",
@@ -110,16 +108,21 @@ class OPTestAPIv1():
             }
         }
         return op_payload
-
-    def create_resource(self, user_payload):
+    
+    def create_resource(self, user_payload, return_object=False):
         op_payload = self._op_payload_config(user_payload)
         payload_bytes = json.dumps(op_payload).encode("utf-8")
         print('creating reg')
         res = self.session.post(f'{self.base_url}/contents', data=payload_bytes, headers=self.headers, timeout=TIMEOUT, verify=False)
         created = res.json()
-        print(created['id'])
-        self._create_parent_associations(created['id'], user_payload['parentAssociationsIds'])
+        
+        if return_object:
+            return created
+        
+        # self._create_parent_associations(created['id'], user_payload['parentAssociationsIds'])
+        return
 
+    # Not Working
     def _create_parent_associations(self, id, parents_ids):
         formatted_parents = []
         for id in parents_ids:
@@ -128,8 +131,10 @@ class OPTestAPIv1():
                 "id": f"{id}",
                 "typeDefinitionId": f"{obj['typeDefinitionId']}",
                 "path": f"{obj['path']}",
+                "associationDefinitionId": "4",
                 "type": "PARENT"
             }
             formatted_parents.append(json_obj)
-        res = self.session.post(f'{self.base_url}/contents/{id}/associations', json=formatted_parents, headers=self.headers, timeout=TIMEOUT, verify=False)
+        print(formatted_parents)
+        res = self.session.post(f'{self.base_url}/contents/{id}/associations/parents', json=formatted_parents, headers=self.headers, timeout=TIMEOUT, verify=False)
         print(res.json())

@@ -1,8 +1,6 @@
-from OPTestAPI import OPTestAPIv1
+from OPTestAPIv1 import OPTestAPIv1
 
-opta = OPTestAPIv1('http://useast.services.cloud.techzone.ibm.com:39238/openpages/logon.jsp')
-opta.set_credentials('OpenPagesAdministrator', 'OpenPagesAdministrator')
-
+opta = OPTestAPIv1('http://useast.services.cloud.techzone.ibm.com:39238/openpages/logon.jsp', 'OpenPagesAdministrator', 'OpenPagesAdministrator')
 payload = {
     "name": "Teste_criar_registro_199",
     "description": "Possible Fraudulent behavior - Unauthorized Access",

@@ -1,6 +1,9 @@
 import re
 import time
 
+from utils import check_url_protocol
+from urllib.parse import urlparse
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -25,6 +28,9 @@ class OPTest:
         service = webdriver.ChromeService(executable_path=chromedriver_path)
         self.driver = webdriver.Chrome(options=options, service=service)
         self.driver.get(url)
+        self.server_name = urlparse(url).netloc
+        self.task_view_path = '/app/jspview/react/grc/task-view'
+        self.base_interface_url = f'{check_url_protocol(url)}://{self.server_name}/openpages'
         self.wait = WebDriverWait(self.driver, TIMEOUT)
 
     def get_element(self, type_search, element_info):
@@ -102,8 +108,9 @@ class OPTest:
 
     def wait_load(self): 
         self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
-
-
+    
+    def redirect_to_taskview(self, id):
+        self.driver.get(f'{self.base_interface_url}{self.task_view_path}/{id}')
 
 class ElementOPTest(WebElement):
     def __init__(self, super: WebElement):

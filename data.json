@@ -1,13 +1,34 @@
 [
     {
-        "object": "SOXRisk",
-        "id": 123,
-        "SistemFields": {
-            "Name": "Test123",
-            "Description": "This is a description"
-        },
-        "fields": {
-            "OPSS-Iss:Status": "Not Ready"
-        }
+        "name": "Teste_criar_registro_199",
+        "description": "Possible Fraudulent behavior - Unauthorized Access",
+        "object_type": "SOXIssue",
+        "primary_parent_id": "3156",
+        "fields": [
+            {
+                "name": "OPSS-Iss:Additional Description",
+                "value": "Teste Adição automatizada com todos os processamentos necessários"
+            },
+            {
+                "name": "OPSS-Iss:Priority",
+                "value": {
+                    "name": "High"
+                }
+            }
+        ],
+        "parents": [
+            27699, 
+            {
+                "object_type": "SOXBusEntity", 
+                "name": "ACME"
+            }
+        ],
+        "children": [
+            159039,
+            {
+                "object_type": "SOXTask", 
+                "name": "AI-2470"
+            }
+        ]
     }
 ]

@@ -5,32 +5,19 @@ import json
 from OPTest import OPTest
 from OPTestAPIv2 import OPTestAPIv2
 
-# opt = OPTest(
-#     os.path.join(os.getcwd(), 'chromedriver-win64','chromedriver.exe'),
-#     'http://useast.services.cloud.techzone.ibm.com:31484/openpages/logon.jsp'
-# )
 
 api = OPTestAPIv2('http://useast.services.cloud.techzone.ibm.com:31484/openpages/logon.jsp', 'OpenPagesAdministrator', 'OpenPagesAdministrator')
-
-###
-## Login
-# username_input = opt.get_element_v3('#username')
-# username_input.click()
-# username_input.add_text('OpenPagesAdministrator')
-# password = opt.get_element_v3('#password')
-# password.click()
-# password.add_text('OpenPagesAdministrator')
-# span = opt.get_element_v3('#cds--checkbox-label-text')
-# span.click()
-# login = opt.get_element_v3('#submit')
-# login.click()
-# opt.wait_load()
 
 data = {}
 with open('data.json', 'r') as d:
     data = json.load(d)
 
-created = api.create_resource(data[0], True)
-# opt.redirect_to_taskview(created['id'])
+created = api.create_resource(object_json=data[0], return_created_object=True)
+id = created['id']
 
-# continue_button = opt.get_element_v3('#walkme-balloon-13362360-focusable-element-2 > div') 
+ans = api.transition_workflow(object_id=id, wf_name='Issue Review Workflow', next_stage_name='Submit for review')
+api.update_field(id, "OPSS-Iss:Additional Description", 'Low')
+api.transition_workflow(id, 'Issue Review Workflow', 'Approve')
+api.update_field(id, 'OPLC-Std:LCComment', 'Action Items Complete')
+api.update_field_associate_object(id, 'child', 'SOXTask', [{"name": "OPSS-AI:Status", "value": {"name": "Closed"}}])
+api.transition_workflow(id, 'Issue Review Workflow', 'Close')

@@ -1,6 +1,6 @@
 [
     {
-        "name": "Teste_criar_registro_199",
+        "name": "First WF completion_22",
         "description": "Possible Fraudulent behavior - Unauthorized Access",
         "object_type": "SOXIssue",
         "primary_parent_id": "3156",
@@ -14,6 +14,24 @@
                 "value": {
                     "name": "High"
                 }
+            },
+            {
+                "name": "OPSS-Iss:Issue Type",
+                "value": {
+                    "name": "Scoping"
+                }
+            },
+            {
+                "name": "OPSS-Iss:Issue Approver",
+                "value": "OpenPagesAdministrator"
+            },
+            {
+                "name": "OPSS-Iss:Domain",
+                "values": [
+                    {
+                        "name": "Compliance"
+                    }
+                ]
             }
         ],
         "parents": [
@@ -24,7 +42,6 @@
             }
         ],
         "children": [
-            159039,
             {
                 "object_type": "SOXTask", 
                 "name": "AI-2470"

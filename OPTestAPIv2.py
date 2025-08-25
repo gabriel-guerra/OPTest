@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from urllib3.util.retry import Retry
 import requests
 from requests.adapters import HTTPAdapter
+from utils import log_info, log_response
 
 def generate_base64(user, password):
     credenciais = f"{user}:{password}"
@@ -50,9 +51,9 @@ class OPTestAPIv2():
 
     def _warmup_request(self):
         try:
-            print('Testing connection:')
+            log_info('Testing connection:')
             res = self.session.get(f'{self.base_url}/types', headers=self.headers, timeout=TIMEOUT, verify=False)
-            print(res)
+            log_response(res, 200)
         except Exception as e:
             print(f'Failed to connect to server: {e}')
 
@@ -66,26 +67,6 @@ class OPTestAPIv2():
         }
         return op_payload
     
-    def create_resource(self, user_payload, return_object=False):
-        op_payload = self._op_payload_creation(user_payload)
-        payload_bytes = json.dumps(op_payload).encode("utf-8")
-        
-        print('Creating resource')
-        try:
-            res = self.session.post(f'{self.base_url}/contents', data=payload_bytes, headers=self.headers, timeout=TIMEOUT, verify=False)
-            print(res.status_code)
-            created = res.json()
-            
-            self._create_associations('parent', created['id'], user_payload['parents'])
-            self._create_associations('child', created['id'], user_payload['children'])
-            
-            if return_object:
-                return created
-        except Exception as e:
-            print(f'Error creating resource: {e}')
-        
-        return
-    
     def _req_objectId_by_name(self, object_type, name):
         try:
             query = f"SELECT [Resource ID] FROM [{object_type}] WHERE [Name] = \'{name}\'"
@@ -94,9 +75,121 @@ class OPTestAPIv2():
         except Exception as e:
             print(f'Error while querying: {e}')
 
-    def _create_associations(self, association_type, id, objects):
-        print(f'Creating associations: {association_type}')
-        for obj in objects:
+    
+    def _req_wf_definition(self, object_type, wf_name):
+        'it\'s working'
+        pass
+        # res = self.session.get(f'{self.base_url}/workflows/definitions?object_type={object_type}', headers=self.headers, timeout=TIMEOUT, verify=False)
+        # obj_wfs = res.json()['definitions']
+        # found_wf = {}
+        # for wf in obj_wfs:
+        #     if wf.name == wf_name:
+        #         found_wf = wf
+        #         break
+        # 'http://useast.services.cloud.techzone.ibm.com:31484/opgrc/api/v2/workflows/definitions?object_type=SOXIssue'
+        # 'http://useast.services.cloud.techzone.ibm.com:31484/opgrc/api/v2/workflows/definitions/1122'
+
+    def _req_wf_instace(self, object_id, wf_name):
+        limit = 100_000
+        res = self.session.get(f'{self.base_url}/workflows/instances/search?workflow={wf_name}&limit={limit}', headers=self.headers, timeout=TIMEOUT, verify=False)
+        instances = res.json()['activity_instances']
+        for inst in instances:
+            if inst['grc_object']['id'] == object_id:
+                return inst
+            
+    def _req_objectName_by_id(self, object_id):
+        res = self.session.get(f'{self.base_url}/contents/{object_id}')
+        log_response(res, 200)
+        return res.json()['name']
+    
+    def _req_associations(self, object_id, association_type, associate_object_type):
+        res = {}
+        if association_type.lower() in ['parent', 'parents']:
+            res = self.session.get(f'{self.base_url}/contents/{object_id}/associations?association_type=parent', headers=self.headers, timeout=TIMEOUT, verify=False)
+        elif association_type.lower() in ['child', 'children']:
+            res = self.session.get(f'{self.base_url}/contents/{object_id}/associations?association_type=child', headers=self.headers, timeout=TIMEOUT, verify=False)
+        else: 
+            res = self.session.get(f'{self.base_url}/contents/{object_id}/associations', headers=self.headers, timeout=TIMEOUT, verify=False)
+        associations = res.json()['associations']
+        
+        ## Check if ObjectType was informed
+        response = self.session.get(f'{self.base_url}/types/{associate_object_type}')
+        if response.status_code != 200:
+            log_info(f'Object Type {associate_object_type} does not exist. Ignoring filter')
+            return associations
+
+        type_definition_id = response.json()['id']
+        filtered_associations = []
+        for association in associations:
+            if association['type_definition_id'] == type_definition_id:
+                filtered_associations.append(association)
+        return filtered_associations
+
+    ###
+    ##
+    # Available
+    def create_resource(self, object_json, return_created_object=False):
+        op_payload = self._op_payload_creation(object_json)
+        payload_bytes = json.dumps(op_payload).encode("utf-8")
+        
+        log_info('Creating resource')
+        try:
+            res = self.session.post(f'{self.base_url}/contents', data=payload_bytes, headers=self.headers, timeout=TIMEOUT, verify=False)
+            log_response(res, 201)
+            created = res.json()
+            
+            self.create_associations('parent', created['id'], object_json['parents'])
+            self.create_associations('child', created['id'], object_json['children'])
+            
+            if return_created_object:
+                return created
+        except Exception as e:
+            print(f'Error creating resource: {e}')
+        
+        return
+    
+    def transition_workflow(self, object_id, wf_name, next_stage_name):
+        log_info(f"Transitioning WF {wf_name} to {next_stage_name}")
+        instance = self._req_wf_instace(object_id, wf_name)
+        res = self.session.post(f'{self.base_url}/workflows/instances/{instance['id']}/transition/{next_stage_name}')
+        log_response(res, 200)
+
+    def update_field(self, object_id, field_name, field_value):
+        fields = [
+            {
+            "name": f"{field_name}",
+            "value": f'{field_value}'
+            }
+        ]
+        self.bulk_update_field(object_id, fields)
+
+    def bulk_update_field(self, object_id, field_list, only_one_request=False):
+        if only_one_request:
+            log_info('Updating bulk fields')
+            payload = {
+                'name': self._req_objectName_by_id(object_id),
+                "fields": field_list
+            }
+            res = self.session.put(f'{self.base_url}/contents/{object_id}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
+            log_response(res, 200)
+        else:
+            for field in field_list:
+                log_info(f'Updating field {field['name']}')
+                payload = {
+                    'name': self._req_objectName_by_id(object_id),
+                    "fields": [
+                        {
+                            "name": field['name'],
+                            "value": field['value']
+                        }
+                    ],
+                }
+                res = self.session.put(f'{self.base_url}/contents/{object_id}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
+                log_response(res, 200)
+
+    def create_associations(self, association_type, id, objects_list):
+        log_info(f'Creating associations: {association_type}')
+        for obj in objects_list:
             ids = []
             if isinstance(obj, dict):
                 ids.append(
@@ -115,8 +208,12 @@ class OPTestAPIv2():
             payload = {"associations": ids}
             try:
                 res = self.session.post(f'{self.base_url}/contents/{id}/associations/{association_type}{'s' if association_type.lower() == 'parent' else 'ren'}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
-                print(f'Status {res.status_code} {res.json() if res.status_code != 202 else ''}')
+                log_response(res, 202)
             except Exception as e: 
                 print(f'{e}')
         return
-        
+    
+    def update_field_associate_object(self, starting_object_id, association_type, associate_object_type, fields_list):
+        associations = self._req_associations(starting_object_id, association_type, associate_object_type)
+        for association in associations:
+            self.bulk_update_field(association['id'], fields_list)

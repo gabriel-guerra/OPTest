@@ -1,6 +1,4 @@
-import http.client
 import base64
-import json
 from urllib.parse import urlparse
 from urllib3.util.retry import Retry
 import requests

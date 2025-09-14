@@ -1,6 +1,7 @@
 from OPTestAPIv2 import OPTestAPIv2
 from OPTestGRCObject import OPTestGRCObject
 
+# Example of API connected to an IBM virtual machine
 api = OPTestAPIv2('http://useast.services.cloud.techzone.ibm.com:45319/openpages/logon.jsp', 'OpenPagesAdministrator', 'OpenPagesAdministrator')
 
 # Create Object

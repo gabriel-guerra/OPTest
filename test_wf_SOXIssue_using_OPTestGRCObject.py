@@ -3,41 +3,41 @@ from OPTestGRCObject import OPTestGRCObject
 
 api = OPTestAPIv2('http://useast.services.cloud.techzone.ibm.com:45319/openpages/logon.jsp', 'OpenPagesAdministrator', 'OpenPagesAdministrator')
 
-created = OPTestGRCObject(
-    api,
-    'SOXIssue', 
-    'Name-Example', 
-    'Example Description', 
-    3156,
-    [("OPSS-Iss:Status", "Closed")],
-    [27699],
-    [15713])
+# Create Object
+issue_object = OPTestGRCObject(
+    api=api,
+    type_definition='SOXIssue', 
+    name='Name-Example', 
+    description='Example Description', 
+    primary_parent_id=3156,
+    fields_list=[("OPSS-Iss:Status", "Closed")],
+    parents_list=[27699],
+    children_list=[15713]
+)
 
-# created.update_field("OPSS-Iss:Additional Description", 'Low')
-# created.update_field("OPSS-Iss:Issue Type", 'Scoping')
-# created.update_field("OPSS-Iss:Issue Approver", 'OpenPagesAdministrator')
-# created.update_field("OPSS-Iss:Domain", 'Compliance')
-created.bulk_update_fields([
+# Set some fields (also can be done on creation)
+issue_object.bulk_update_fields([
     ("OPSS-Iss:Additional Description", 'Low'), 
     ("OPSS-Iss:Issue Type", 'Scoping'), 
     ("OPSS-Iss:Issue Approver", 'OpenPagesAdministrator'),
     ("OPSS-Iss:Domain", 'Compliance')
 ])
-created.transition_workflow(next_stage_name='Submit for review')
-created.transition_workflow('Approve')
-created.update_field('OPLC-Std:LCComment', 'Action Items Complete')
-created.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
-created.transition_workflow('Close')
+
+# In this example, SOXIssue object has 'Issue Review Workflow' as autostart, so we don't need to start WF by code
+issue_object.transition_workflow(next_stage_name='Submit for review')
+issue_object.transition_workflow('Approve')
+
+# Update single field
+issue_object.update_field('OPLC-Std:LCComment', 'Action Items Complete')
+
+# Update field on associate objects - In this case, children
+issue_object.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
+
+# The command line before this one is a requirement to advance in WF
+issue_object.transition_workflow('Close')
 
 # Start WF Again
-created.start_workflow("Issue Review Workflow")
-created.delete()
-# created.update_field("OPSS-Iss:Additional Description", 'Low')
-# created.update_field("OPSS-Iss:Issue Type", 'Scoping')
-# created.update_field("OPSS-Iss:Issue Approver", 'OpenPagesAdministrator')
-# created.update_field("OPSS-Iss:Domain", 'Compliance')
-# created.transition_workflow(next_stage_name='Submit for review')
-# created.transition_workflow('Approve')
-# created.update_field('OPLC-Std:LCComment', 'Action Items Complete')
-# created.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
-# created.transition_workflow('Close')
+issue_object.start_workflow("Issue Review Workflow")
+
+# Delete resource
+issue_object.delete()

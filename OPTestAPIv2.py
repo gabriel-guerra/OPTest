@@ -42,7 +42,6 @@ class OPTestAPIv2():
 
         ## Test request
         self._warmup_request()
-    
 
 
     ###
@@ -54,6 +53,13 @@ class OPTestAPIv2():
             log_info('Testing connection:')
             res = self.session.get(f'{self.base_url}/types', headers=self.headers, timeout=TIMEOUT, verify=False)
             log_response(res, 200)
+        except Exception as e:
+            print(f'Failed to connect to server: {e}')
+    
+    def _req_type_definition(self, type_definition):
+        try:
+            res = self.session.get(f'{self.base_url}/types/{type_definition}', headers=self.headers, timeout=TIMEOUT, verify=False)
+            return res.json()
         except Exception as e:
             print(f'Failed to connect to server: {e}')
 
@@ -75,28 +81,32 @@ class OPTestAPIv2():
         except Exception as e:
             print(f'Error while querying: {e}')
 
-    
-    def _req_wf_definition(self, object_type, wf_name):
-        'it\'s working'
-        pass
-        # res = self.session.get(f'{self.base_url}/workflows/definitions?object_type={object_type}', headers=self.headers, timeout=TIMEOUT, verify=False)
-        # obj_wfs = res.json()['definitions']
-        # found_wf = {}
-        # for wf in obj_wfs:
-        #     if wf.name == wf_name:
-        #         found_wf = wf
-        #         break
-        # 'http://useast.services.cloud.techzone.ibm.com:31484/opgrc/api/v2/workflows/definitions?object_type=SOXIssue'
-        # 'http://useast.services.cloud.techzone.ibm.com:31484/opgrc/api/v2/workflows/definitions/1122'
-
-    def _req_wf_instace(self, object_id, wf_name):
+    def _req_wf_instace_by_name(self, object_id, wf_name):
         limit = 100_000
         res = self.session.get(f'{self.base_url}/workflows/instances/search?workflow={wf_name}&limit={limit}', headers=self.headers, timeout=TIMEOUT, verify=False)
         instances = res.json()['activity_instances']
         for inst in instances:
             if inst['grc_object']['id'] == object_id:
                 return inst
-            
+        return None
+    
+    def _req_wf_instace_by_type_definition(self, object_id, type_definition):
+        limit = 100_000
+        res = self.session.get(f'{self.base_url}/workflows/instances/search?type_definition={type_definition}&limit={limit}', headers=self.headers, timeout=TIMEOUT, verify=False)
+        instances = res.json()['activity_instances']
+        for inst in instances:
+            if inst['grc_object']['id'] == object_id:
+                return inst
+        return None
+    
+    def _req_wf_definition_by_name(self, wf_name):
+        res = self.session.get(f'{self.base_url}/workflows/definitions', headers=self.headers, timeout=TIMEOUT, verify=False)
+        definitions = res.json()['definitions']
+        for definition in definitions:
+            if definition['name'] == wf_name:
+                return definition
+        return None
+
     def _req_objectName_by_id(self, object_id):
         res = self.session.get(f'{self.base_url}/contents/{object_id}')
         log_response(res, 200)
@@ -128,13 +138,14 @@ class OPTestAPIv2():
     ###
     ##
     # Available
+    def create_resource_json(self, object, return_created_object=False):
+        op_payload = self._op_payload_creation(object)
+        return self.create_resource(op_payload, return_created_object)    
+
     def create_resource(self, object_json, return_created_object=False):
-        op_payload = self._op_payload_creation(object_json)
-        payload_bytes = json.dumps(op_payload).encode("utf-8")
-        
         log_info('Creating resource')
         try:
-            res = self.session.post(f'{self.base_url}/contents', data=payload_bytes, headers=self.headers, timeout=TIMEOUT, verify=False)
+            res = self.session.post(f'{self.base_url}/contents', json=object_json, headers=self.headers, timeout=TIMEOUT, verify=False)
             log_response(res, 201)
             created = res.json()
             
@@ -145,47 +156,23 @@ class OPTestAPIv2():
                 return created
         except Exception as e:
             print(f'Error creating resource: {e}')
-        
+
         return
     
-    def transition_workflow(self, object_id, wf_name, next_stage_name):
-        log_info(f"Transitioning WF {wf_name} to {next_stage_name}")
-        instance = self._req_wf_instace(object_id, wf_name)
-        res = self.session.post(f'{self.base_url}/workflows/instances/{instance['id']}/transition/{next_stage_name}')
+    def transition_workflow(self, instance_id, next_stage_name):
+        log_info(f"Transitioning WF to {next_stage_name}")
+        res = self.session.post(f"{self.base_url}/workflows/instances/{instance_id}/transition/{next_stage_name}")
         log_response(res, 200)
 
-    def update_field(self, object_id, field_name, field_value):
-        fields = [
-            {
-            "name": f"{field_name}",
-            "value": f'{field_value}'
-            }
-        ]
-        self.bulk_update_field(object_id, fields)
-
-    def bulk_update_field(self, object_id, field_list, only_one_request=False):
-        if only_one_request:
-            log_info('Updating bulk fields')
-            payload = {
-                'name': self._req_objectName_by_id(object_id),
-                "fields": field_list
-            }
-            res = self.session.put(f'{self.base_url}/contents/{object_id}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
+    def update_resource(self, id, object_json, return_updated_object=False):
+        try:
+            res = self.session.put(f'{self.base_url}/contents/{id}', json=object_json, headers=self.headers, timeout=TIMEOUT, verify=False)
             log_response(res, 200)
-        else:
-            for field in field_list:
-                log_info(f'Updating field {field['name']}')
-                payload = {
-                    'name': self._req_objectName_by_id(object_id),
-                    "fields": [
-                        {
-                            "name": field['name'],
-                            "value": field['value']
-                        }
-                    ],
-                }
-                res = self.session.put(f'{self.base_url}/contents/{object_id}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
-                log_response(res, 200)
+            updated = res.json()
+            if return_updated_object:
+                return updated
+        except Exception as e:
+            print(f'Error creating resource: {e}')
 
     def create_associations(self, association_type, id, objects_list):
         log_info(f'Creating associations: {association_type}')
@@ -207,13 +194,30 @@ class OPTestAPIv2():
                 )
             payload = {"associations": ids}
             try:
-                res = self.session.post(f'{self.base_url}/contents/{id}/associations/{association_type}{'s' if association_type.lower() == 'parent' else 'ren'}', json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
+                res = self.session.post(f"{self.base_url}/contents/{id}/associations/{association_type}{'s' if association_type.lower() == 'parent' else 'ren'}", json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
                 log_response(res, 202)
             except Exception as e: 
                 print(f'{e}')
         return
     
-    def update_field_associate_object(self, starting_object_id, association_type, associate_object_type, fields_list):
+    def update_field_associate_objects(self, starting_object_id, object_name, association_type, associate_object_type, fields_list):
         associations = self._req_associations(starting_object_id, association_type, associate_object_type)
         for association in associations:
-            self.bulk_update_field(association['id'], fields_list)
+            name = self._req_objectName_by_id(association['id'])
+            payload = {
+                'name': name,
+                "fields": fields_list
+            }
+            res = self.session.put(f"{self.base_url}/contents/{association['id']}", json=payload, headers=self.headers, timeout=TIMEOUT, verify=False)
+            log_response(res, 200)
+
+    def start_workflow(self, wf_name, object_id):
+        log_info(f"Starting WF {wf_name} at object {object_id}")
+        wf_definition = self._req_wf_definition_by_name(wf_name)
+        res = self.session.post(f"{self.base_url}/workflows/definitions/{wf_definition['id']}/start/{object_id}", headers=self.headers, timeout=TIMEOUT, verify=False)
+        log_response(res, 200)
+
+    def delete_resource(self, object_id):
+        log_info(f"Deleting object {object_id}")
+        res = self.session.delete(f"{self.base_url}/contents/{object_id}", headers=self.headers, timeout=TIMEOUT, verify=False)
+        log_response(res, 204)

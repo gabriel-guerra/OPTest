@@ -19,7 +19,7 @@ class OPTestGRCObject:
         }
         self.op_json = self.api.create_resource(first_payload, return_created_object=True)
         self.id = self.op_json['id']
-        self.workflow = self.is_wf_active()
+        self.workflow = self.get_wf_instance()
 
 
     # CRUD
@@ -52,7 +52,7 @@ class OPTestGRCObject:
 
 
     # Workflow 
-    def is_wf_active(self):
+    def get_wf_instance(self):
         return self.api._req_wf_instace_by_type_definition(self.id, self.type_definition)
     
     def start_workflow(self, wf_name):
@@ -60,7 +60,42 @@ class OPTestGRCObject:
 
     def transition_workflow(self, next_stage_name):
         self.api.transition_workflow(self.workflow['id'], next_stage_name)
+
+    def get_wf_name(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['workflow']['name']
+
+    def get_wf_state(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['workflow']['activity']['name']
     
+    def get_wf_assignees(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['assignees']
+    
+    def get_wf_stage_due_date(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['due_date']
+
+    def get_wf_overall_due_date(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['process_due_date']
+    
+    def get_wf_status(self):
+        instance = self.get_wf_instance()
+        if instance is None:
+            return None
+        return instance['status']
 
     # Fields
     def parse_fields(self, type_definition, fields):
@@ -68,6 +103,14 @@ class OPTestGRCObject:
         for field in fields:
             op_fields.append(self.setup_field(type_definition, field[0], field[1]))
         return op_fields
+    
+    def is_field_filled(self, field):
+        query = f"SELECT [{field}] FROM [{self.type_definition}] WHERE [Resource ID] = '{self.id}'"
+        response_rows = self.api._req_query(query)['rows']
+        for row in response_rows:
+            if 'value' not in row.keys() and 'values' not in row.keys():
+                return False
+        return True
 
     def find_data_type(self, type_definition, field_name):
         definitions = []

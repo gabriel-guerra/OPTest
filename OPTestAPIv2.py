@@ -132,6 +132,14 @@ class OPTestAPIv2():
             if association['type_definition_id'] == type_definition_id:
                 filtered_associations.append(association)
         return filtered_associations
+    
+    def _req_query(self, query):
+        try:
+            res = self.session.get(f'{self.base_url}/query?q="{query}"')
+            log_response(res, 200)
+            return res.json()
+        except Exception as e:
+            print(f'Error creating resource: {e}')
 
     ###
     ##

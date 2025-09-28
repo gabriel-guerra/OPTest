@@ -24,7 +24,7 @@ class TestIssueWorkflow(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create Object
-        cls.issue_object = OPTestGRCObject(
+        cls.opt_object = OPTestGRCObject(
             api=api,
             type_definition='SOXIssue', 
             name='Name-Example', 
@@ -39,12 +39,12 @@ class TestIssueWorkflow(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Delete resource
-        cls.issue_object.delete()
+        cls.opt_object.delete()
         return super().tearDownClass()
 
     def test_issue_review_workflow(self):
         # Set some fields (also can be done on creation)
-        self.issue_object.bulk_update_fields([
+        self.opt_object.bulk_update_fields([
             ("OPSS-Iss:Additional Description", 'Low'), 
             ("OPSS-Iss:Issue Type", 'Scoping'), 
             ("OPSS-Iss:Issue Approver", 'OpenPagesAdministrator'),
@@ -52,26 +52,26 @@ class TestIssueWorkflow(unittest.TestCase):
         ])
 
         # In this example, SOXIssue object has 'Issue Review Workflow' as autostart, so we don't need to start WF by code
-        self.issue_object.transition_workflow(next_stage_name='Submit for review')
-        self.issue_object.transition_workflow('Approve')
+        self.opt_object.transition_workflow(next_stage_name='Submit for review')
+        self.opt_object.transition_workflow('Approve')
 
         # Update single field
-        self.issue_object.update_field('OPLC-Std:LCComment', 'Action Items Complete')
+        self.opt_object.update_field('OPLC-Std:LCComment', 'Action Items Complete')
 
         # Update field on associate objects - In this case, children
-        self.issue_object.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
+        self.opt_object.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
 
         # The command line before this one is a requirement to advance in WF
-        self.issue_object.transition_workflow('Close')
+        self.opt_object.transition_workflow('Close')
         
         # Assert workflow is over
-        self.assertEqual(self.issue_object.get_wf_instance(), None)
+        self.assertEqual(self.opt_object.get_wf_instance(), None)
 
         # Start WF Again
-        self.issue_object.start_workflow("Issue Review Workflow")
+        self.opt_object.start_workflow("Issue Review Workflow")
 
         # Assert workflow is started 
-        self.assertNotEqual(self.issue_object.get_wf_instance(), None)
+        self.assertNotEqual(self.opt_object.get_wf_instance(), None)
 
 if __name__ == '__main__':
     unittest.main()

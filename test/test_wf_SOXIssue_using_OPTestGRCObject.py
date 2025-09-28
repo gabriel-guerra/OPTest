@@ -1,19 +1,26 @@
+import os
+from dotenv import load_dotenv
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
 import unittest
 
 
 def setUpModule():
+    # Get environment variables
+    load_dotenv()
+    op_url = os.getenv("OP_URL")
+    username = os.getenv("OP_USERNAME")
+    password = os.getenv("OP_PASSWORD")
+    
     # Example of API connected to an IBM virtual machine
     global api
-    api = OPTestAPIv2('http://useast.services.cloud.techzone.ibm.com:20831/openpages/', 'OpenPagesAdministrator', 'OpenPagesAdministrator')
+    api = OPTestAPIv2(op_url, username, password)
 
 def tearDownModule():
     pass
 
 
 class TestIssueWorkflow(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         # Create Object

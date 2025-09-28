@@ -30,7 +30,9 @@ class TestIssueWorkflow(unittest.TestCase):
             name='Name-Example', 
             description='Example Description', 
             primary_parent_id=3156,
-            fields_list=[("OPSS-Iss:Status", "Closed")],
+            fields_list=[
+                ("OPSS-Iss:Priority", "High")
+            ],
             parents_list=[27699],
             children_list=[15713]
         )

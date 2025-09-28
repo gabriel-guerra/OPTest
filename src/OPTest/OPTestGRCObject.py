@@ -97,20 +97,38 @@ class OPTestGRCObject:
             return None
         return instance['status']
 
-    # Fields
+    # Fields - Check information
+    def is_field_filled(self, field):
+        query = f"SELECT [{field}] FROM [{self.type_definition}] WHERE [Resource ID] = '{self.id}'"
+        response_rows = self.api._req_query(query)['rows']
+        for row in response_rows:
+            field_found = row['fields'][0]
+            if 'value' not in field_found.keys() and 'values' not in field_found.keys():
+                return False
+        return True
+    
+    def get_field_value(self, field):
+        query = f"SELECT [{field}] FROM [{self.type_definition}] WHERE [Resource ID] = '{self.id}'"
+        response_rows = self.api._req_query(query)['rows']
+        for row in response_rows:
+            field_found = row['fields'][0]
+            if 'value' not in field_found.keys() and 'values' not in field_found.keys():
+                return None
+            else:
+                if 'value' in field_found.keys():
+                    return field_found['value']
+                else:
+                    all_values = []
+                    for val in field_found['values']:
+                        all_values.append(val['name'])
+                    return all_values
+    
+    # Fields - Manipulation
     def parse_fields(self, type_definition, fields):
         op_fields = []
         for field in fields:
             op_fields.append(self.setup_field(type_definition, field[0], field[1]))
         return op_fields
-    
-    def is_field_filled(self, field):
-        query = f"SELECT [{field}] FROM [{self.type_definition}] WHERE [Resource ID] = '{self.id}'"
-        response_rows = self.api._req_query(query)['rows']
-        for row in response_rows:
-            if 'value' not in row.keys() and 'values' not in row.keys():
-                return False
-        return True
 
     def find_data_type(self, type_definition, field_name):
         definitions = []

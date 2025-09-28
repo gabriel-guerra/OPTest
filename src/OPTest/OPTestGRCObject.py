@@ -57,9 +57,10 @@ class OPTestGRCObject:
     
     def start_workflow(self, wf_name):
         self.api.start_workflow(wf_name, self.id)
+        self.workflow = self.get_wf_instance()
 
-    def transition_workflow(self, next_stage_name):
-        self.api.transition_workflow(self.workflow['id'], next_stage_name)
+    def transition_workflow(self, action_name):
+        self.api.transition_workflow(self.workflow['id'], action_name)
 
     def get_wf_name(self):
         instance = self.get_wf_instance()
@@ -116,7 +117,7 @@ class OPTestGRCObject:
                 return None
             else:
                 if 'value' in field_found.keys():
-                    return field_found['value']
+                    return field_found['value']['name']
                 else:
                     all_values = []
                     for val in field_found['values']:

@@ -1,16 +1,18 @@
+import os
 import base64
+import inspect
 from urllib.parse import urlparse
 from urllib3.util.retry import Retry
 import requests
 from requests.adapters import HTTPAdapter
-from OPTest.utils import log_info, log_response
+from OPTest.utils import log_info, log_response, log_caller_file
 
 def generate_base64(user, password):
     credenciais = f"{user}:{password}"
     credenciais_bytes = credenciais.encode("utf-8")
     return base64.b64encode(credenciais_bytes).decode("utf-8")
 
-TIMEOUT = 5
+TIMEOUT = 10
 
 class OPTestAPIv2():
     def __init__(self, url, username, password):
@@ -37,6 +39,12 @@ class OPTestAPIv2():
         adapter = HTTPAdapter(max_retries=retries)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
+
+        # Logging test script name
+        caller_frame = inspect.stack()[1]
+        caller_file = os.path.basename(caller_frame.filename)
+        log_caller_file(caller_file)
+
 
         ## Test request
         self._warmup_request()
@@ -165,9 +173,9 @@ class OPTestAPIv2():
 
         return
     
-    def transition_workflow(self, instance_id, next_stage_name):
-        log_info(f"Transitioning WF to {next_stage_name}")
-        res = self.session.post(f"{self.base_url}/workflows/instances/{instance_id}/transition/{next_stage_name}")
+    def transition_workflow(self, instance_id, action_name):
+        log_info(f"Transitioning WF to {action_name}")
+        res = self.session.post(f"{self.base_url}/workflows/instances/{instance_id}/transition/{action_name}")
         log_response(res, 200)
 
     def update_resource(self, id, object_json, return_updated_object=False):

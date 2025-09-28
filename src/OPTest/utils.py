@@ -16,3 +16,9 @@ def log_response(res, not_log_if_code=200):
 
 def log_info(text):
     print(text)
+
+def log_caller_file(file_name):
+    print(' ')
+    print('-------------------------------------')
+    print(f'Starting test file: {file_name}')
+    print('-------------------------------------')

@@ -54,7 +54,7 @@ class TestIssueWorkflow(unittest.TestCase):
         ])
 
         # In this example, SOXIssue object has 'Issue Review Workflow' as autostart, so we don't need to start WF by code
-        self.opt_object.transition_workflow(next_stage_name='Submit for review')
+        self.opt_object.transition_workflow(action_name='Submit for review')
         self.opt_object.transition_workflow('Approve')
 
         # Update single field

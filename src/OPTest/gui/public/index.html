@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPTest</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <input id="input-test-folder" type="text" value="">
+    <button id="btn-choose-test-folder" onclick="chooseTestFolder()">Choose test folder</button>
+    <button id="btn-create-test" onclick="createTest()">Create test</button>
+    <button id="btn-edit-test" onclick="editTest()">Edit test</button>
+    <button id="btn-delete-test" onclick="deleteTest()">Delete test</button>
+    <button id="btn-run-test" onclick="selectedTests()">Run test</button>
+
+    <select id="tests-list" multiple size="15" style="width: 400px;">
+    </select>
+
+
+</body>
+<script src="jsApi.js"></script>
+</html>

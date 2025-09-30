@@ -19,7 +19,7 @@ async function fillDefaultTestFolder(){
 async function selectedTests() {
     const select = document.getElementById('tests-list');
     const selected = Array.from(select.selectedOptions).map(option => option.value);
-    alert('Selected: ' + selected.join(', '));
+    return selected
 }
 
 async function getTestFiles(folder) {
@@ -34,16 +34,8 @@ async function getTestFiles(folder) {
     }
 }
 
-
-
-
-function exec() {
-    pywebview.api.custom_logic().then(result => {
-        const h2 = document.createElement('h2');
-        h2.textContent = result;
-        document.body.appendChild(h2);
-        console.log("Recebido do Python:", result);
-    }).catch(err => {
-        console.error("Erro ao chamar Python:", err);
-    });
+async function runTest() {
+    tests = await selectedTests()
+    const folder = document.getElementById('input-test-folder').value
+    await pywebview.api.run_test(folder, tests)
 }

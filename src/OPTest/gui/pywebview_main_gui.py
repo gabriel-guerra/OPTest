@@ -2,6 +2,7 @@ import os
 import webview
 from pathlib import Path
 from importlib.metadata import version
+from subprocess import call
 
 
 class Api:
@@ -20,6 +21,12 @@ class Api:
         folder = Path(folder_path)
         files = [f.name for f in folder.iterdir() if f.is_file() and f.suffix == ".py"]
         return files
+    
+    def run_test(self, folder, tests):
+        command_args = ["python", "-m", "unittest"]
+        command_args.extend(tests)
+        print(f'folder {folder}')
+        call(command_args, cwd=folder)
 
 webview.settings = {
   'ALLOW_DOWNLOADS': False,

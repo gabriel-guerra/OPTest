@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPTest - Edit</title>
+</head>
+<body>
+    <button id="btn-create-object" onclick="">Create object</button>
+    <button id="btn-edit-field" onclick="">Edit field</button>
+    <button id="btn-bulk-edit-field" onclick="">Edit multiple fields</button>
+    <button id="btn-edit-field-associate-object" onclick="">Edit field on associate object</button>
+    <button id="btn-start-workflow" onclick="">Start workflow</button>
+    <button id="btn-delete-object" onclick="">Delete object</button>
+    <button id="btn-delete-step" onclick="">Delete test step</button>
+    <button id="btn-finish-edit" onclick="loadIndexPage()">Finish edit</button>
+    
+    <div>
+        <table id="test-actions">
+            <tr>
+                <th>Action Type</th>
+                <th>Action information</th>
+                <th>Edit</th>
+            </tr>
+        </table>
+    </div>
+
+</body>
+<script src="../js/editTest.js"></script>
+<script src="../js/jsApi.js"></script>
+</html>

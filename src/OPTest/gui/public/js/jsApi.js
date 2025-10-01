@@ -35,7 +35,46 @@ async function getTestFiles(folder) {
 }
 
 async function runTest() {
+    document.getElementById("log-output").textContent = ""
     tests = await selectedTests()
     const folder = document.getElementById('input-test-folder').value
     await pywebview.api.run_test(folder, tests)
+}
+
+function addLine(line) {
+    document.getElementById("log-output").textContent += line + "\n";
+}   
+
+function commandFinished(code) {
+    addLine("Process finished with code " + code);
+}
+
+function toggleLogOutput(){
+    const logOutput = document.getElementById('log-output')
+    const hidden = logOutput.getAttribute('hidden')
+
+    if (hidden){
+        logOutput.removeAttribute('hidden')
+    }else{
+        logOutput.setAttribute('hidden', 'hidden')
+    }
+}
+
+async function loadEditTestPage(){
+    const test = await selectedTests()
+    if (test.length === 0){
+        alert('Choose one test to edit.')
+        return
+    }
+    if (test.length > 1){
+        alert('Choose only one test to edit.')
+        return
+    }
+    const url = await pywebview.api.get_edit_test_page_url()
+    window.location.href = url;
+}
+
+async function loadIndexPage(){
+    const url = await pywebview.api.get_index_page_url()
+    window.location.href = url;
 }

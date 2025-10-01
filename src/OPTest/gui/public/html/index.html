@@ -6,18 +6,22 @@
     <title>OPTest</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
+    <h1>OPTest</h1>
     <input id="input-test-folder" type="text" value="">
     <button id="btn-choose-test-folder" onclick="chooseTestFolder()">Choose test folder</button>
     <button id="btn-create-test" onclick="createTest()">Create test</button>
-    <button id="btn-edit-test" onclick="editTest()">Edit test</button>
+    <button id="btn-edit-test" onclick="loadEditTestPage()">Edit test</button>
     <button id="btn-delete-test" onclick="deleteTest()">Delete test</button>
     <button id="btn-run-test" onclick="runTest()">Run test</button>
 
     <select id="tests-list" multiple size="15" style="width: 400px;">
     </select>
 
+    <input name="show-log-output" type="checkbox" checked onchange="toggleLogOutput()">
+    <label for="show-log-output">Show log output</label>
+    <pre id="log-output"></pre>
+
 
 </body>
-<script src="jsApi.js"></script>
+<script src="../js/jsApi.js"></script>
 </html>

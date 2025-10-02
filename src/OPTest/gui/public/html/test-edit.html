@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTest - Edit</title>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <button id="btn-create-object" onclick="">Create object</button>
@@ -23,6 +24,56 @@
                 <th>Edit</th>
             </tr>
         </table>
+    </div>
+
+    <div id="menu-create-object" class="hide">
+        <button onclick="closePopUpMenu('menu-create-object')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-resource-type-definition">Object Type</label>
+                <input type="text" name="input-resource-type-definition" id="input-resource-type-definition">
+            </div>
+            <div>
+                <label for="input-resource-name">Object Name</label>
+                <input type="text" name="input-resource-name" id="input-resource-name">
+            </div>
+            <div>
+                <label for="input-resource-description">Description</label>
+                <input type="text" name="input-resource-description" id="input-resource-description">
+            </div>
+            <div>
+                <label for="input-resource-primary-parent">Primary parent ID</label>
+                <input type="text" name="input-resource-primary-parent" id="input-resource-primary-parent">
+            </div>
+            <div>
+                <table id="table-fields">
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <table id="table-parents">
+                    <tr>
+                        <th>Parant ID</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <table id="table-children">
+                    <tr>
+                        <th>Child ID</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+            <button type="submit" id="save-button" value="create_object">Save</button>
+        </form>
+    </div>
+    <div id="menu-create-object">
     </div>
 
 </body>

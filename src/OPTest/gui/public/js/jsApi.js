@@ -32,6 +32,7 @@ async function getTestFiles(folder) {
         option.setAttribute("value", f)
         select.appendChild(option)
     }
+    return
 }
 
 async function runTest() {
@@ -61,20 +62,41 @@ function toggleLogOutput(){
 }
 
 async function loadEditTestPage(){
-    const test = await selectedTests()
-    if (test.length === 0){
+    const tests = await selectedTests()
+    if (tests.length === 0){
         alert('Choose one test to edit.')
         return
     }
-    if (test.length > 1){
+    if (tests.length > 1){
         alert('Choose only one test to edit.')
         return
     }
     const url = await pywebview.api.get_edit_test_page_url()
-    window.location.href = url;
+    const folderPath = document.getElementById('input-test-folder')
+
+    const data = await pywebview.api.get_test_steps(folderPath.value, tests[0])
+    localStorage.setItem("data", JSON.stringify(data));
+    window.location.href = `${url}`;
 }
 
 async function loadIndexPage(){
     const url = await pywebview.api.get_index_page_url()
     window.location.href = url;
 }
+
+// async function loadEditTestPage(){
+//     const tests = await selectedTests()
+//     if (tests.length === 0){
+//         alert('Choose one test to edit.')
+//         return
+//     }
+//     if (tests.length > 1){
+//         alert('Choose only one test to edit.')
+//         return
+//     }
+//     await pywebview.api.load_edit_test_page()
+// }
+
+// async function loadIndexPage(){
+//     await pywebview.api.load_index_page()
+// }

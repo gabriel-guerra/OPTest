@@ -21,21 +21,30 @@ def tearDownModule():
 
 
 class TestIssueWorkflow(unittest.TestCase):
-    def test_issue_review_workflow(self):
+    @classmethod
+    def setUpClass(cls):
         # Create Object
-        self.opt_object = OPTestGRCObject(
-            api,
-            'SOXIssue', 
-            'OPT Object', 
-            'Example Description', 
-            3156,
-            [
+        cls.opt_object = OPTestGRCObject(
+            api=api,
+            type_definition='SOXIssue', 
+            name='Name-Example', 
+            description='Example Description', 
+            primary_parent_id=3156,
+            fields_list=[
                 ("OPSS-Iss:Priority", "High")
             ],
-            [27699],
-            [15713]
+            parents_list=[27699],
+            children_list=[15713]
         )
+        return super().setUpClass()
 
+    @classmethod
+    def tearDownClass(cls):
+        # Delete resource
+        cls.opt_object.delete()
+        return super().tearDownClass()
+
+    def test_issue_review_workflow(self):
         # Set some fields (also can be done on creation)
         self.opt_object.bulk_update_fields([
             ("OPSS-Iss:Additional Description", 'Low'), 
@@ -45,11 +54,11 @@ class TestIssueWorkflow(unittest.TestCase):
         ])
 
         # In this example, SOXIssue object has 'Issue Review Workflow' as autostart, so we don't need to start WF by code
-        self.opt_object.transition_workflow('Submit for review')
+        self.opt_object.transition_workflow(action_name='Submit for review')
         self.opt_object.transition_workflow('Approve')
 
         # Update single field
-        self.opt_object.bulk_update_fields([('OPLC-Std:LCComment', 'Action Items Complete')])
+        self.opt_object.update_field('OPLC-Std:LCComment', 'Action Items Complete')
 
         # Update field on associate objects - In this case, children
         self.opt_object.update_field_associate_objects('child', 'SOXTask', [("OPSS-AI:Status", "Closed")])
@@ -65,11 +74,6 @@ class TestIssueWorkflow(unittest.TestCase):
 
         # Assert workflow is started 
         self.assertNotEqual(self.opt_object.get_wf_instance(), None)
-
-    # Must always be at the end for safe delete
-    def tearDown(self):
-        # Delete resource
-        self.opt_object.delete()
 
 if __name__ == '__main__':
     unittest.main()

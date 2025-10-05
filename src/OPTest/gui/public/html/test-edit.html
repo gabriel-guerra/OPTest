@@ -30,23 +30,23 @@
         <button onclick="closePopUpMenu('menu-create-object')">Close</button>
         <form action="">
             <div>
-                <label for="input-resource-type-definition">Object Type</label>
-                <input type="text" name="input-resource-type-definition" id="input-resource-type-definition">
+                <label for="input-create-resource-type-definition">Object Type</label>
+                <input type="text" name="input-create-resource-type-definition" id="input-create-resource-type-definition">
             </div>
             <div>
-                <label for="input-resource-name">Object Name</label>
-                <input type="text" name="input-resource-name" id="input-resource-name">
+                <label for="input-create-resource-name">Object Name</label>
+                <input type="text" name="input-create-resource-name" id="input-create-resource-name">
             </div>
             <div>
-                <label for="input-resource-description">Description</label>
-                <input type="text" name="input-resource-description" id="input-resource-description">
+                <label for="input-create-resource-description">Description</label>
+                <input type="text" name="input-create-resource-description" id="input-create-resource-description">
             </div>
             <div>
-                <label for="input-resource-primary-parent">Primary parent ID</label>
-                <input type="text" name="input-resource-primary-parent" id="input-resource-primary-parent">
+                <label for="input-create-resource-primary-parent">Primary parent ID</label>
+                <input type="text" name="input-create-resource-primary-parent" id="input-create-resource-primary-parent">
             </div>
             <div>
-                <table id="table-fields">
+                <table id="table-create-fields">
                     <tr>
                         <th>Field</th>
                         <th>Value</th>
@@ -55,7 +55,7 @@
                 </table>
             </div>
             <div>
-                <table id="table-parents">
+                <table id="table-create-parents">
                     <tr>
                         <th>Parant ID</th>
                         <th>Action</th>
@@ -63,18 +63,110 @@
                 </table>
             </div>
             <div>
-                <table id="table-children">
+                <table id="table-create-children">
                     <tr>
                         <th>Child ID</th>
                         <th>Action</th>
                     </tr>
                 </table>
             </div>
-            <button type="submit" id="save-button" value="create_object">Save</button>
+            <button type="submit" id="create-save-button" value="create_object">Save</button>
         </form>
     </div>
-    <div id="menu-create-object">
+
+    <div id="menu-update-fields" class="hide">
+        <button onclick="closePopUpMenu('menu-update-fields')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-update-resource-name">Object Name</label>
+                <input type="text" name="input-update-resource-name" id="input-update-resource-name">
+            </div>
+            <div>
+                <table id="table-update-fields">
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+            <button type="submit" id="update-save-button" value="update_field">Save</button>
+        </form>
     </div>
+
+    <div id="menu-update-associate" class="hide">
+        <button onclick="closePopUpMenu('menu-update-associate')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-update-associate-resource-name">Object Name</label>
+                <input type="text" name="input-update-associate-resource-name" id="input-update-associate-resource-name">
+            </div>
+            <div>
+                <label for="input-update-associate-association-type">Association Type</label>
+                <select id="input-update-associate-association-type" name="input-update-associate-association-type">
+                    <option value="child">Child</option>
+                    <option value="parent">Parent</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+            <div>
+                <label for="input-update-associate-type-definition">Object Type</label>
+                <input type="text" name="input-update-associate-type-definition" id="input-update-associate-type-definition">
+            </div>
+            <div>
+                <table id="table-update-associate">
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+            <button type="submit" id="update-associate-save-button" value="update_fields_associate_object">Save</button>
+        </form>
+    </div>
+
+    <div id="menu-start_workflow" class="hide">
+        <button onclick="closePopUpMenu('menu-start_workflow')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-start_workflow-resource-name">Object Name</label>
+                <input type="text" name="input-start_workflow-resource-name" id="input-start_workflow-resource-name">
+            </div>
+            <div>
+                <label for="input-start-workflow-name">Workflow Name</label>
+                <input type="text" name="input-start_workflow-name" id="input-start_workflow-name">
+            </div>
+            <button type="submit" id="start_workflow-save-button" value="start_workflow">Save</button>
+        </form>
+    </div>
+
+    <div id="menu-transition_workflow" class="hide">
+        <button onclick="closePopUpMenu('menu-transition_workflow')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-transition_workflow-resource-name">Object Name</label>
+                <input type="text" name="input-transition_workflow-resource-name" id="input-transition_workflow-resource-name">
+            </div>
+            <div>
+                <label for="input-transition_workflow-name">Workflow Action Name</label>
+                <input type="text" name="input-transition_workflow-name" id="input-transition_workflow-name">
+            </div>
+            <button type="submit" id="transition_workflow-save-button" value="transition_workflow">Save</button>
+        </form>
+    </div>
+
+    <div id="menu-delete-object" class="hide">
+        <button onclick="closePopUpMenu('menu-delete-object')">Close</button>
+        <form action="">
+            <div>
+                <label for="input-delete-resource-name">Object Name</label>
+                <input type="text" name="input-delete-resource-name" id="input-delete-resource-name">
+            </div>
+            <button type="submit" id="delete-save-button" value="delete_object">Save</button>
+        </form>
+    </div>
+
 
 </body>
 <script src="../js/editTest.js"></script>

@@ -21,6 +21,29 @@ def tearDownModule():
 
 
 class TestRiskWorkflow(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Create Object
+        cls.opt_object = OPTestGRCObject(
+            api=api,
+            type_definition='SOXRisk', 
+            name='Test Workflow SOXRisk', 
+            description='Example Description', 
+            primary_parent_id=10474,
+            fields_list=[
+                ("OPSS-Rsk:Owner", "OpenPagesAdministrator")
+            ],
+            parents_list=[],
+            children_list=[]
+        )
+        return super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        # Delete resource
+        cls.opt_object.delete()
+        return super().tearDownClass()
+
     @unittest.skip("RiskEval auto-naming for new objects must be turned on")
     def test_RCSA_workflow(self):
 
@@ -35,20 +58,6 @@ class TestRiskWorkflow(unittest.TestCase):
         #       ]
         # }
         ### Turn on auto-naming for RiskEval object. More info at https://www.ibm.com/docs/en/openpages/9.0.0?topic=settings-object-auto-naming
-
-        # Create Object
-        self.opt_object = OPTestGRCObject(
-            api,
-            'SOXRisk', 
-            'OPT Object', 
-            'Example Description', 
-            10474,
-            [
-                ("OPSS-Rsk:Owner", "OpenPagesAdministrator")
-            ],
-            [],
-            []
-        )
 
         # Start RCSA Workflow
         self.opt_object.start_workflow("RCSA")
@@ -75,9 +84,7 @@ class TestRiskWorkflow(unittest.TestCase):
         self.assertEqual(inherent_risk_rating, 'Low')
         self.assertEqual(residual_risk_rating, 'Very High')
 
-    def tearDown(self):
-        # Delete resource
-        self.opt_object.delete()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -103,7 +103,7 @@ class Api:
                 step = self.parse_start_workflow(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
             elif 'update_field_associate_objects' in c:
-                step = self.parse_update_fields_associate_object(c, test_steps)
+                step = self.parse_update_field_associate_objects(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
 
         return test_steps
@@ -132,7 +132,7 @@ class Api:
         uuid_code = uuid.uuid4()
 
         # Final format
-        name = params_list[1].replace(" ", "_").replace("-", "_").lower()
+        name = self.format_reference(params_list[1])
         step = {
             "uuid": f"{uuid_code}",
             "reference": f"{name}",
@@ -262,7 +262,7 @@ class Api:
             else:
                 raise Exception("Didn't find object to start workflow.")
             
-    def parse_update_fields_associate_object(self, command, all_steps):
+    def parse_update_field_associate_objects(self, command, all_steps):
         uuid_code = uuid.uuid4()
         
         # Get object name
@@ -291,7 +291,7 @@ class Api:
                 step = {
                     "uuid": f"{uuid_code}",
                     "reference": f"{object_name}",
-                    "action_type": "update_fields_associate_object",
+                    "action_type": "update_field_associate_objects",
                     "action_information": f"Update field(s) in {params_list[0]} of {value['additional_information']['name']}",
                     "additional_information": {
                         "name": f"{value['additional_information']['name']}",
@@ -303,7 +303,145 @@ class Api:
                 return step
             else:
                 raise Exception("Didn't find object to update fields.")
+            
+    def save_operations_data(self, folder, test, operations):
+        full_path = os.path.join(folder, test)
+        testName = test.replace(".py", "")
 
+        header = self.build_test_header(testName)
+        commands = self.set_test_steps(operations)
+
+        for c in commands:
+            header += f"        {c}\n"
+
+        with open(full_path, 'w') as f:
+            f.write(header)
+
+
+    def set_test_steps(self, operations):
+        
+        commands = []
+
+        for v in operations.values():
+            if v['action_type'] == 'create_object':
+                commands.append(self.build_create_object_command(v))
+            elif v['action_type'] == 'delete_object':
+                commands.append(self.build_delete_object_command(v))
+            elif v['action_type'] == 'update_field':
+                commands.append(self.build_update_field_command(v))
+            elif v['action_type'] == 'transition_workflow':
+                commands.append(self.build_transition_workflow_command(v))
+            elif v['action_type'] == 'start_workflow':
+                commands.append(self.build_start_workflow_command(v))
+            elif v['action_type'] == 'update_field_associate_objects':
+                commands.append(self.build_update_field_associate_object_command(v))
+
+        return commands
+    
+    def build_create_object_command(self, operation):
+        reference = operation['reference']
+        type_definition = operation['additional_information']['type_definition']
+        name = operation['additional_information']['name']
+        description = operation['additional_information']['description']
+        primary_parent_id = int(operation['additional_information']['primary_parent_id'])
+        fields_list = []
+
+        for item in operation['additional_information']['fields_list']:
+            fields_list.append((next(iter(item)), item[next(iter(item))]))
+
+        parents_list = [int(i) for i in operation['additional_information']['parents_list']]
+        children_list = [int(i) for i in operation['additional_information']['children_list']]
+
+        command = f"self.{reference} = OPTestGRCObject(api, '{type_definition}', '{name}', '{description}', {primary_parent_id}, {fields_list}, {parents_list}, {children_list})"
+        return command
+    
+    def build_update_field_command(self, operation):
+        
+        reference = operation['reference']
+        fields_list = []
+        
+        for item in operation['additional_information']['fields_list']:
+            fields_list.append((next(iter(item)), item[next(iter(item))]))
+
+        command = f"self.{reference}.bulk_update_fields({fields_list})"
+        return command
+    
+    def build_update_field_associate_object_command(self, operation):
+
+        reference = operation['reference']
+        association_type = operation['additional_information']['association_type']
+        type_definition = operation['additional_information']['type_definition']
+        fields_list = []
+
+        for item in operation['additional_information']['fields_list']:
+            fields_list.append((next(iter(item)), item[next(iter(item))]))
+
+        command = f"self.{reference}.update_field_associate_objects('{association_type}', '{type_definition}', {fields_list})"
+        return command
+
+    def build_delete_object_command(self, operation):
+        reference = operation['reference']
+        command = f"self.{reference}.delete()"
+        return command
+    
+    def build_start_workflow_command(self, operation):
+        reference = operation['reference']
+
+        command = f"self.{reference}.start_workflow('{operation['additional_information']['workflow_name']}')"
+        return command
+
+    def build_transition_workflow_command(self, operation):
+        reference = operation['reference']
+
+        command = f"self.{reference}.transition_workflow('{operation['additional_information']['action_name']}')"
+        return command
+    
+    def format_reference(self, string):
+        return string.replace(" ", "_").replace("-", "_").lower()
+
+    def build_test_header(self, test_name):
+        reference = self.format_reference(test_name)
+        name = reference.title().replace("_", "")
+        
+        header = f'''
+import os
+from dotenv import load_dotenv
+from OPTest import OPTestAPIv2
+from OPTest import OPTestGRCObject
+import unittest
+
+def setUpModule():
+    load_dotenv()
+    op_url = os.getenv("OP_URL")
+    username = os.getenv("OP_USERNAME")
+    password = os.getenv("OP_PASSWORD")
+    
+    global api
+    api = OPTestAPIv2(op_url, username, password)
+
+def tearDownModule():
+    pass
+
+
+class TestScript{name}(unittest.TestCase):
+    def test_{reference}(self):
+'''
+        
+        return header
+    
+    def create_new_test(self, folder_path, test_name):
+        full_path = os.path.join(folder_path, f"{test_name}.py")
+        with open(full_path, 'w') as f:
+            pass
+
+    def delete_tests(self, folder_path, tests_list):
+        paths = []
+
+        for t in tests_list:
+            paths.append(os.path.join(folder_path, t))
+
+        for p in paths:
+            os.remove(p)
 
 
 if __name__ == "__main__":

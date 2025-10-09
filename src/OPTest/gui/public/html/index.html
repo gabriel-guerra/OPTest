@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTest</title>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <h1>OPTest</h1>
     <input id="input-test-folder" type="text" value="">
     <button id="btn-choose-test-folder" onclick="chooseTestFolder()">Choose test folder</button>
-    <button id="btn-create-test" onclick="createTest()">Create test</button>
+    <button id="btn-create-test" onclick="buildCreateTest()">Create test</button>
     <button id="btn-edit-test" onclick="loadEditTestPage()">Edit test</button>
     <button id="btn-delete-test" onclick="deleteTest()">Delete test</button>
     <button id="btn-run-test" onclick="runTest()">Run test</button>
@@ -19,7 +20,16 @@
 
     <input name="show-log-output" type="checkbox" checked onchange="toggleLogOutput()">
     <label for="show-log-output">Show log output</label>
-    <pre id="log-output"></pre>
+    <pre id="log-output" style="user-select: text;"></pre>
+
+    <div id="menu-create-test-file" class="hide">
+        <button onclick="closePopUpMenu('menu-create-test-file')">Close</button>
+        <form action="">
+            <label for="input-new-test">Test Name</label>
+            <input type="text" name="input-new-test" id="input-new-test">
+            <button type="submit" id="create-test-save-button" value="save_new_test">Create</button>
+        </form>
+    </div>
 
 
 </body>

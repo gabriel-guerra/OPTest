@@ -1,5 +1,28 @@
 setup();
 
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const action = event.submitter.value;
+        if(action === "create_object") {
+            saveCreateObjectData()
+        }else if (action === "update_field"){
+            saveUpdateFieldsData()
+        }else if (action === 'start_workflow'){
+            saveStartWorkflowData()
+        }else if (action === 'transition_workflow'){
+            saveTransitionWorkflowData()
+        }else if (action === 'update_field_associate_objects'){
+            saveUpdateOnAssociateData()
+        }else if (action === 'delete_object'){
+            saveDeleteData()
+        }else if (action === 'save_new_test'){
+            saveNewTest()
+        }
+    });
+});
+
+
 async function setup() {
     if (window.pywebview && pywebview.api) {
         const folder = await fillDefaultTestFolder();
@@ -74,6 +97,9 @@ async function loadEditTestPage(){
     const url = await pywebview.api.get_edit_test_page_url()
     const folderPath = document.getElementById('input-test-folder')
 
+    localStorage.setItem("folderPath", folderPath.value)
+    localStorage.setItem("testName", tests[0])
+
     const data = await pywebview.api.get_test_steps(folderPath.value, tests[0])
     localStorage.setItem("data", JSON.stringify(data));
     window.location.href = `${url}`;
@@ -84,19 +110,74 @@ async function loadIndexPage(){
     window.location.href = url;
 }
 
-// async function loadEditTestPage(){
-//     const tests = await selectedTests()
-//     if (tests.length === 0){
-//         alert('Choose one test to edit.')
-//         return
-//     }
-//     if (tests.length > 1){
-//         alert('Choose only one test to edit.')
-//         return
-//     }
-//     await pywebview.api.load_edit_test_page()
-// }
+function saveOperationsData(){
+    localStorage.setItem("operations", JSON.stringify(operations));
+}
 
-// async function loadIndexPage(){
-//     await pywebview.api.load_index_page()
-// }
+function clearLocalStorage(){
+    localStorage.clear()
+}
+
+async function returnToIndexPage(){
+    saveOperationsData()
+
+    // Get localStorage data
+    const operations = JSON.parse(localStorage.getItem("operations"))
+    const folderPath = localStorage.getItem("folderPath")
+    const testName = localStorage.getItem("testName")
+
+    await pywebview.api.save_operations_data(folderPath, testName, operations)
+    
+    clearLocalStorage()
+    await loadIndexPage()
+}
+
+function closePopUpMenu(menuId){
+    const menu = document.getElementById(menuId)
+    menu.classList.remove('show');
+    menu.classList.add('hide');
+
+    clearActionsTable()
+    buildActionsTable()
+}
+
+function openPopUpMenu(menuId){
+    const menu = document.getElementById(menuId)
+    menu.classList.add('show');
+    menu.classList.remove('hide');
+}
+
+async function buildCreateTest(){
+    if (document.getElementById("menu-create-test-file").classList.contains("show")) return
+    openPopUpMenu("menu-create-test-file")
+}
+
+async function saveNewTest(){
+    const inputPath = document.getElementById("input-test-folder")
+    const inputName = document.getElementById("input-new-test")
+
+    await pywebview.api.create_new_test(inputPath.value, inputName.value)
+    loadIndexPage()
+}
+
+async function deleteTest(){
+    let message = ''
+    const selected = await selectedTests()
+
+    if (selected.length === 0){
+        alert('Choose at least one test to delete.')
+        return
+    }else if (selected.length > 1){
+        message = `Do you want to delete ${selected.length} tests?`
+    }else{
+        message = `Do you want to delete ${selected[0]}?`
+    }
+
+    const inputPath = document.getElementById("input-test-folder")
+
+    if (window.confirm(message)) {
+        await pywebview.api.delete_tests(inputPath.value, selected)
+    }
+
+    loadIndexPage()
+}

@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <button id="btn-create-object" onclick="">Create object</button>
-    <button id="btn-edit-field" onclick="">Edit field</button>
-    <button id="btn-bulk-edit-field" onclick="">Edit multiple fields</button>
-    <button id="btn-edit-field-associate-object" onclick="">Edit field on associate object</button>
-    <button id="btn-start-workflow" onclick="">Start workflow</button>
-    <button id="btn-delete-object" onclick="">Delete object</button>
-    <button id="btn-delete-step" onclick="">Delete test step</button>
-    <button id="btn-finish-edit" onclick="loadIndexPage()">Finish edit</button>
+    <button id="btn-create-object" onclick="newCreateObjectView()">Create object</button>
+    <button id="btn-bulk-edit-field" onclick="newUpdateFieldsView()">Edit fields</button>
+    <button id="btn-edit-field-associate-object" onclick="newUpdateOnAssociateView()">Edit field on associate object</button>
+    <button id="btn-start-workflow" onclick="newStartWorkflowView()">Start workflow</button>
+    <button id="btn-start-workflow" onclick="newTransitionWorkflowView()">Transition workflow</button>
+    <button id="btn-delete-object" onclick="newDeleteView()">Delete object</button>
+    <button id="btn-finish-edit" onclick="returnToIndexPage()">Finish edit</button>
     
     <div>
         <table id="test-actions">
@@ -122,7 +121,7 @@
                     </tr>
                 </table>
             </div>
-            <button type="submit" id="update-associate-save-button" value="update_fields_associate_object">Save</button>
+            <button type="submit" id="update-associate-save-button" value="update_field_associate_objects">Save</button>
         </form>
     </div>
 
@@ -170,5 +169,9 @@
 
 </body>
 <script src="../js/editTest.js"></script>
+<script src="../js/editTests/clearMenus.js"></script>
+<script src="../js/editTests/createNewSteps.js"></script>
+<script src="../js/editTests/findAndEdit.js"></script>
+<script src="../js/editTests/saveChanges.js"></script>
 <script src="../js/jsApi.js"></script>
 </html>

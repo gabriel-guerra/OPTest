@@ -24,7 +24,7 @@ document.querySelectorAll('form').forEach(form => {
 
 
 async function setup() {
-    if (window.pywebview && pywebview.api) {
+    if (window.pywebview && pywebview.api) {        
         const folder = await fillDefaultTestFolder();
         await getTestFiles(folder)
     } else {
@@ -134,22 +134,30 @@ async function returnToIndexPage(){
 
 function closePopUpMenu(menuId){
     const menu = document.getElementById(menuId)
-    menu.classList.remove('show');
     menu.classList.add('hide');
 
     clearActionsTable()
     buildActionsTable()
 }
 
+function closeIndexPopUpMenu(menuId){
+    const menu = document.getElementById(menuId)
+    menu.close()
+}
+
 function openPopUpMenu(menuId){
     const menu = document.getElementById(menuId)
-    menu.classList.add('show');
-    menu.classList.remove('hide');
+    menu.showModal()
 }
 
 async function buildCreateTest(){
     if (document.getElementById("menu-create-test-file").classList.contains("show")) return
     openPopUpMenu("menu-create-test-file")
+    
+    document.querySelector('#menu-create-test-file').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
 }
 
 async function saveNewTest(){

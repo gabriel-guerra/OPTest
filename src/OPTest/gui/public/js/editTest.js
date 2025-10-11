@@ -1,6 +1,12 @@
 const params = new URLSearchParams(window.location.search)
 const operations = JSON.parse(localStorage.getItem("data"));
+setH1Element()
 buildActionsTable()
+
+function setH1Element(){
+    const h1 = document.getElementById('h1-header')
+    h1.innerHTML = `Edit test file: <span id="testFileName">${localStorage.getItem('testName')}</span>`
+}
 
 function buildActionsTable(){
     const table = document.getElementById('test-actions')
@@ -82,10 +88,12 @@ function prepareEmptyRow(row){
     
     td1.setAttribute("contenteditable", "true")
     td2.innerHTML = `
-    <button reference="${row.id}" position="above" onclick="addTrRow(this)">Add above</button>
-    <button reference="${row.id}" position="below" onclick="addTrRow(this)">Add below</button>
-    <button reference="${row.id}" onclick="removeTr(this)">Remove</button>
+        <button reference="${row.id}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"/></svg></button>
+        <button reference="${row.id}" position="above" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/></svg></button>
+        <button reference="${row.id}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
     `
+
+
     row.appendChild(td1)
     row.appendChild(td2)
 

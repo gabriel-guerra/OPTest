@@ -7,13 +7,26 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <button id="btn-create-object" onclick="newCreateObjectView()">Create object</button>
-    <button id="btn-bulk-edit-field" onclick="newUpdateFieldsView()">Edit fields</button>
-    <button id="btn-edit-field-associate-object" onclick="newUpdateOnAssociateView()">Edit field on associate object</button>
-    <button id="btn-start-workflow" onclick="newStartWorkflowView()">Start workflow</button>
-    <button id="btn-start-workflow" onclick="newTransitionWorkflowView()">Transition workflow</button>
-    <button id="btn-delete-object" onclick="newDeleteView()">Delete object</button>
-    <button id="btn-finish-edit" onclick="returnToIndexPage()">Finish edit</button>
+
+    <h1 id="h1-header"></h1>
+    
+    <div>
+        <span>Object Actions</span>
+        <button id="btn-create-object" class="default-button" onclick="newCreateObjectView()">Create object</button>
+        <button id="btn-bulk-edit-field" class="default-button" onclick="newUpdateFieldsView()">Edit fields</button>
+        <button id="btn-edit-field-associate-object" class="default-button" onclick="newUpdateOnAssociateView()">Edit field on associate object</button>
+        <button id="btn-delete-object" class="delete-button" onclick="newDeleteView()">Delete object</button>
+    </div>
+    
+    <div>
+        <span>Workflow Actions</span>
+        <button id="btn-start-workflow" class="default-button" onclick="newStartWorkflowView()">Start workflow</button>
+        <button id="btn-start-workflow" class="default-button" onclick="newTransitionWorkflowView()">Transition workflow</button>
+        
+        <span>
+            <button id="btn-finish-edit" class="run-button" onclick="returnToIndexPage()">Finish edit</button>
+        </span>
+    </div>
     
     <div>
         <table id="test-actions">

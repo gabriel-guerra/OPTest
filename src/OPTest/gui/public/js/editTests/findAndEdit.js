@@ -6,19 +6,19 @@ function buildCreateObjectView(uuid, steps){
     if (document.getElementById("menu-create-object").classList.contains("show")) return
     openPopUpMenu("menu-create-object")
 
-    const typeDefinition = document.getElementById('input-create-resource-type-definition')
-    const name = document.getElementById('input-create-resource-name')
-    const description = document.getElementById('input-create-resource-description')
-    const primaryParentId = document.getElementById('input-create-resource-primary-parent')
+    const typeDefinitionElement = document.getElementById('input-create-resource-type-definition')
+    const nameElement = document.getElementById('input-create-resource-name')
+    const descriptionElement = document.getElementById('input-create-resource-description')
+    const primaryParentIdElement = document.getElementById('input-create-resource-primary-parent')
     const tableFields = document.getElementById('table-create-fields')
     const tableParents = document.getElementById('table-create-parents')
     const tableChildren = document.getElementById('table-create-children')
     const saveButton = document.getElementById('create-save-button')
 
-    typeDefinition.value = steps.additional_information.type_definition
-    name.value = steps.additional_information.name
-    description.value = steps.additional_information.description
-    primaryParentId.value = steps.additional_information.primary_parent_id
+    typeDefinitionElement.value = steps.additional_information.type_definition
+    nameElement.value = steps.additional_information.name
+    descriptionElement.value = steps.additional_information.description
+    primaryParentIdElement.value = steps.additional_information.primary_parent_id
     saveButton.setAttribute('uuid', uuid)
     
     let trf = 0
@@ -26,26 +26,13 @@ function buildCreateObjectView(uuid, steps){
         for (const [key, value] of Object.entries(obj)){
             const row = document.createElement('tr')
             row.id = `creation_fields_tr_${trf}`
-
-            const field = document.createElement('td')
-            const val = document.createElement('td')
-            const buttons = document.createElement('td')
-
-            field.innerHTML = key
-            val.innerHTML = value
-            buttons.innerHTML = `
-                <button type="button" reference="creation_fields_tr_${trf}" position="above" onclick="addTrRow(this)">Add above</button>
-                <button type="button" reference="creation_fields_tr_${trf}" position="below" onclick="addTrRow(this)">Add below</button>
-                <button type="button" reference="creation_fields_tr_${trf}" onclick="removeTr(this)">Remove</button>
-            `
+            const newRow = prepareEmptyRow(row)
             
-            field.setAttribute("contenteditable", "true")
-            val.setAttribute("contenteditable", "true")
+            const rowChildren = newRow.children
+            rowChildren[0].innerHTML = key
+            rowChildren[1].innerHTML = value
             
-            row.appendChild(field)
-            row.appendChild(val)
-            row.appendChild(buttons)
-            tableFields.appendChild(row)
+            tableFields.appendChild(newRow)
 
             trf++
         }
@@ -55,23 +42,13 @@ function buildCreateObjectView(uuid, steps){
     for (const parent of steps.additional_information.parents_list){
         const row = document.createElement('tr')
         row.id = `creation_parents_tr_${trp}`
-
-        const id = document.createElement('td')
-        const buttons = document.createElement('td')
-
-        id.innerHTML = parent
-        buttons.innerHTML = `
-            <button type="button" reference="creation_parents_tr_${trp}" position="above" onclick="addTrRow(this)">Add above</button>
-            <button type="button" reference="creation_parents_tr_${trp}" position="below" onclick="addTrRow(this)">Add below</button>
-            <button type="button" reference="creation_parents_tr_${trp}" onclick="removeTr(this)">Remove</button>
-        `
-
-        id.setAttribute("contenteditable", "true")
-
-        row.appendChild(id)
-        row.appendChild(buttons)
-        tableParents.appendChild(row)
-
+        const newRow = prepareEmptyRow(row)
+        
+        const rowChildren = newRow.children[0].children
+        rowChildren[0].value = parent
+        
+        tableParents.appendChild(newRow)
+        
         trp++
     }
 
@@ -79,22 +56,12 @@ function buildCreateObjectView(uuid, steps){
     for (const children of steps.additional_information.children_list){
         const row = document.createElement('tr')
         row.id = `creation_children_tr_${trc}`
-
-        const id = document.createElement('td')
-        const buttons = document.createElement('td')
-
-        id.innerHTML = children
-        buttons.innerHTML = `
-            <button type="button" reference="creation_children_tr_${trc}" position="above" onclick="addTrRow(this)">Add above</button>
-            <button type="button" reference="creation_children_tr_${trc}" position="below" onclick="addTrRow(this)">Add below</button>
-            <button type="button" reference="creation_children_tr_${trc}" onclick="removeTr(this)">Remove</button>
-        `
-
-        id.setAttribute("contenteditable", "true")
-
-        row.appendChild(id)
-        row.appendChild(buttons)
-        tableChildren.appendChild(row)
+        const newRow = prepareEmptyRow(row)
+            
+        const rowChildren = newRow.children[0].children
+        rowChildren[0].value = children
+        
+        tableChildren.appendChild(newRow)
 
         trc++
     }
@@ -102,18 +69,19 @@ function buildCreateObjectView(uuid, steps){
 
 ////
 // Update Fields
-
 function buildUpdateFieldsView(uuid, steps){
     clearDetailsUpdateData()
 
     if (document.getElementById("menu-update-fields").classList.contains("show")) return
     openPopUpMenu("menu-update-fields")
 
-    const name = document.getElementById('input-update-resource-name')
+    const nameElement = document.getElementById('select-update-resource-name')
     const tableFields = document.getElementById('table-update-fields')
     const saveButton = document.getElementById('update-save-button')
 
-    name.value = steps.additional_information.name
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
     saveButton.setAttribute('uuid', uuid)
     
     let trf = 0
@@ -126,6 +94,9 @@ function buildUpdateFieldsView(uuid, steps){
             const val = document.createElement('td')
             const buttons = document.createElement('td')
 
+            field.classList.add('popupTd')
+            val.classList.add('popupTd')
+
             field.innerHTML = key
 
             if (Array.isArray(value)){
@@ -133,9 +104,8 @@ function buildUpdateFieldsView(uuid, steps){
             }
             val.innerHTML = value
             buttons.innerHTML = `
-                <button type="button" reference="update_fields_tr_${trf}" position="above" onclick="addTrRow(this)">Add above</button>
-                <button type="button" reference="update_fields_tr_${trf}" position="below" onclick="addTrRow(this)">Add below</button>
-                <button type="button" reference="update_fields_tr_${trf}" onclick="removeTr(this)">Remove</button>
+                <button type="button" reference="update_fields_tr_${trf}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
+                <button type="button" reference="update_fields_tr_${trf}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
             `
             
             field.setAttribute("contenteditable", "true")
@@ -161,15 +131,18 @@ function buildUpdateOnAssociateView(uuid, steps){
     if (document.getElementById("menu-update-associate").classList.contains("show")) return
     openPopUpMenu("menu-update-associate")
 
-    const name = document.getElementById('input-update-associate-resource-name')
-    const associationType = document.getElementById('input-update-associate-association-type')
-    const typeDefinition = document.getElementById('input-update-associate-type-definition')
+    const nameElement = document.getElementById('select-update-associate-resource-name')
+    const associationTypeElement = document.getElementById('input-update-associate-association-type')
+    const typeDefinitionElement = document.getElementById('input-update-associate-type-definition')
     const tableFields = document.getElementById('table-update-associate')
     const saveButton = document.getElementById('update-associate-save-button')
 
-    name.value = steps.additional_information.name
-    typeDefinition.value = steps.additional_information.type_definition
-    for (const child of associationType.children){
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
+    nameElement.value = steps.additional_information.name
+    typeDefinitionElement.value = steps.additional_information.type_definition
+    for (const child of associationTypeElement.children){
         if (child.value === steps.additional_information.association_type){
             child.setAttribute("selected", "true")
         }
@@ -187,12 +160,14 @@ function buildUpdateOnAssociateView(uuid, steps){
             const val = document.createElement('td')
             const buttons = document.createElement('td')
 
+            field.classList.add('popupTd')
+            val.classList.add('popupTd')
+
             field.innerHTML = key
             val.innerHTML = value
             buttons.innerHTML = `
-                <button type="button" reference="associate_fields_tr_${trf}" position="above" onclick="addTrRow(this)">Add above</button>
-                <button type="button" reference="associate_fields_tr_${trf}" position="below" onclick="addTrRow(this)">Add below</button>
-                <button type="button" reference="associate_fields_tr_${trf}" onclick="removeTr(this)">Remove</button>
+                <button type="button" reference="associate_fields_tr_${trf}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
+                <button type="button" reference="associate_fields_tr_${trf}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
             `
             
             field.setAttribute("contenteditable", "true")
@@ -213,14 +188,18 @@ function buildUpdateOnAssociateView(uuid, steps){
 // Start Workflow
 
 function buildStartWorkflowView(uuid, steps){
+    clearDetailsStartWorkflow()
+
     if (document.getElementById("menu-start_workflow").classList.contains("show")) return
     openPopUpMenu("menu-start_workflow")
 
-    const name = document.getElementById('input-start_workflow-resource-name')
+    const nameElement = document.getElementById('select-start_workflow-resource-name')
     const wfName = document.getElementById('input-start_workflow-name')
     const saveButton = document.getElementById('start_workflow-save-button')
 
-    name.value = steps.additional_information.name
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
     wfName.value = steps.additional_information.workflow_name
     saveButton.setAttribute('uuid', uuid)
 
@@ -230,14 +209,18 @@ function buildStartWorkflowView(uuid, steps){
 // Transition Workflow
 
 function buildTransitionWorkflowView(uuid, steps){
+    clearDetailsTransitionWorkflow()
+
     if (document.getElementById("menu-transition_workflow").classList.contains("show")) return
     openPopUpMenu("menu-transition_workflow")
 
-    const name = document.getElementById('input-transition_workflow-resource-name')
+    const nameElement = document.getElementById('select-transition_workflow-resource-name')
     const wfAction = document.getElementById('input-transition_workflow-name')
     const saveButton = document.getElementById('transition_workflow-save-button')
 
-    name.value = steps.additional_information.name
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
     wfAction.value = steps.additional_information.action_name
     saveButton.setAttribute('uuid', uuid)
 
@@ -245,15 +228,18 @@ function buildTransitionWorkflowView(uuid, steps){
 
 ////
 // Delete Object
-
 function buildDeleteView(uuid, steps){
+    clearDetailsDeleteObject()
+
     if (document.getElementById("menu-delete-object").classList.contains("show")) return
     openPopUpMenu("menu-delete-object")
 
-    const name = document.getElementById('input-delete-resource-name')
+    const nameElement = document.getElementById('select-delete-resource-name')
     const saveButton = document.getElementById('delete-save-button')
 
-    name.value = steps.additional_information.name
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
     saveButton.setAttribute('uuid', uuid)
 
 }

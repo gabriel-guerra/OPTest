@@ -19,8 +19,8 @@ function buildActionsTable(){
         
         actionType.innerHTML = value.action_type
         actionInformations.innerHTML = value.action_information
-        details.innerHTML = `<button onclick="getDetails(this)">Details</button>`
-        deleteTestStep.innerHTML = `<button onclick="deleteTestStep(this)">Remove</button>`
+        details.innerHTML = `<button class="default-button" onclick="getDetails(this)">Details</button>`
+        deleteTestStep.innerHTML = `<button class="delete-button" onclick="deleteTestStep(this)">Remove</button>`
         
         tableRow.setAttribute("uuid", key)
         
@@ -79,20 +79,30 @@ function clearActionsTable(){
 function prepareEmptyRow(row){
     if (row.id.includes('field')){
         const td0 = document.createElement('td')
+        td0.classList.add('popupTd')
         td0.setAttribute("contenteditable", "true")
         row.appendChild(td0)
     }
 
     const td1 = document.createElement('td')
+    if (!row.id.includes('field')){
+        const input = document.createElement('input')
+        input.classList.add('inputFormat')
+        input.setAttribute("type", "number")
+        input.setAttribute('onwheel', 'this.blur()');
+        td1.appendChild(input)
+    }else{
+        td1.setAttribute("contenteditable", "true")
+        td1.classList.add('popupTd')
+    }
+
     const td2 = document.createElement('td')
     
-    td1.setAttribute("contenteditable", "true")
+    // td1.setAttribute("contenteditable", "true")
     td2.innerHTML = `
-        <button reference="${row.id}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"/></svg></button>
-        <button reference="${row.id}" position="above" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/></svg></button>
+        <button reference="${row.id}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
         <button reference="${row.id}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
     `
-
 
     row.appendChild(td1)
     row.appendChild(td2)
@@ -135,4 +145,43 @@ async function deleteTestStep(button){
     
     clearActionsTable()
     buildActionsTable()
+}
+
+function findOPTObjectsDeclared(uuid){
+    let objects = []
+    for (const op of Object.values(operations)){
+        if (op.action_type === 'create_object'){
+            objects.push(op)
+        }
+
+        if (op.uuid === uuid){
+            break
+        }
+    }
+    return objects
+}
+
+function fillFindAndEditSelectsPopupMenu(objects, nameElement, steps){
+    const options = []
+    for (const obj of objects){
+        const option = document.createElement('option')
+        option.value = obj.additional_information.name
+        option.innerHTML = obj.additional_information.name
+        option.setAttribute("reference", obj.reference)
+        if (obj.reference === steps.reference){
+            option.setAttribute("selected", "true")
+        }
+        nameElement.appendChild(option)
+    }
+}
+
+function fillNewSelectsPopupMenu(objects, nameElement){
+    const options = []
+    for (const obj of objects){
+        const option = document.createElement('option')
+        option.value = obj.additional_information.name
+        option.innerHTML = obj.additional_information.name
+        option.setAttribute("reference", obj.reference)
+        nameElement.appendChild(option)
+    }
 }

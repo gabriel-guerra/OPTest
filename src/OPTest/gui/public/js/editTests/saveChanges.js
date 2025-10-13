@@ -8,7 +8,8 @@ function saveCreateObjectData(){
         const name = document.getElementById('input-create-resource-name')
         const description = document.getElementById('input-create-resource-description')
         const primaryParentId = document.getElementById('input-create-resource-primary-parent')
-        
+        const safeDeleteCheckbox = document.getElementById('safe-delete-checkbox')
+
         const fields = []
         const parents = []
         const children = []
@@ -53,11 +54,15 @@ function saveCreateObjectData(){
                 "primary_parent_id": primaryParentId.value,
                 "fields_list": fields,
                 "parents_list": parents,
-                "children_list": children
+                "children_list": children,
+                "safe_delete": safeDeleteCheckbox.getAttribute("checked")
             }
         }
         operations[uuid] = newValues
     }
+
+    closePopUpMenu('menu-create-object')
+
 }
 
 function saveUpdateFieldsData(){
@@ -67,7 +72,7 @@ function saveUpdateFieldsData(){
 
     if (uuid){
         
-        const name = document.getElementById('input-update-resource-name')
+        const name = document.getElementById('select-update-resource-name')
         
         const fields = []
         
@@ -103,6 +108,8 @@ function saveUpdateFieldsData(){
         
         operations[uuid] = newValues
     }
+
+    closePopUpMenu("menu-update-fields")
 }
 
 function saveUpdateOnAssociateData(){
@@ -111,7 +118,7 @@ function saveUpdateOnAssociateData(){
     saveButton.setAttribute("uuid", "")
 
     if (uuid){
-        const name = document.getElementById('input-update-associate-resource-name')
+        const name = document.getElementById('select-update-associate-resource-name')
         const associationTypeElement = document.getElementById('input-update-associate-association-type')
         const associationType = associationTypeElement.selectedOptions[0]
         const typeDefinition = document.getElementById('input-update-associate-type-definition')
@@ -145,6 +152,8 @@ function saveUpdateOnAssociateData(){
                 
         operations[uuid] = newValues
     }
+
+    closePopUpMenu('menu-update-associate')
 }
 
 function saveStartWorkflowData(){
@@ -153,7 +162,7 @@ function saveStartWorkflowData(){
     saveButton.setAttribute("uuid", "")
 
     if (uuid){
-        const name = document.getElementById('input-start_workflow-resource-name')
+        const name = document.getElementById('select-start_workflow-resource-name')
         const wfName = document.getElementById('input-start_workflow-name')
         
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
@@ -170,6 +179,8 @@ function saveStartWorkflowData(){
         
         operations[uuid] = newValues
     }
+
+    closePopUpMenu('menu-start_workflow')
 }
 
 
@@ -179,7 +190,7 @@ function saveTransitionWorkflowData(){
     saveButton.setAttribute("uuid", "")
 
     if (uuid){
-        const name = document.getElementById('input-transition_workflow-resource-name')
+        const name = document.getElementById('select-transition_workflow-resource-name')
         const wfAction = document.getElementById('input-transition_workflow-name')
         
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
@@ -196,6 +207,8 @@ function saveTransitionWorkflowData(){
         
         operations[uuid] = newValues
     }
+
+    closePopUpMenu('menu-transition_workflow')
 }
 
 function saveDeleteData(){
@@ -204,7 +217,7 @@ function saveDeleteData(){
     saveButton.setAttribute("uuid", "")
 
     if (uuid){
-        const name = document.getElementById('input-delete-resource-name')
+        const name = document.getElementById('select-delete-resource-name')
 
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
         const newValues = {
@@ -218,4 +231,7 @@ function saveDeleteData(){
         }
         operations[uuid] = newValues
     }
+
+    closePopUpMenu('menu-delete-object')
+
 }

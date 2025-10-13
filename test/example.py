@@ -4,12 +4,12 @@ from dotenv import load_dotenv
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
 import unittest
+from pathlib import Path
 
 def setUpModule():
-    load_dotenv()
-    op_url = os.getenv("OP_URL")
-    username = os.getenv("OP_USERNAME")
-    password = os.getenv("OP_PASSWORD")
+    op_url = os.environ['OP_URL']
+    username = os.environ['OP_USERNAME']
+    password = os.environ['OP_PASSWORD']
     
     global api
     api = OPTestAPIv2(op_url, username, password)
@@ -28,4 +28,3 @@ class TestScriptExample(unittest.TestCase):
         self.example.update_field_associate_objects('child', 'SOXTask', [('OPSS-AI:Status', 'Closed')])
         self.example.transition_workflow('Close')
         self.example.start_workflow('Issue Review Workflow')
-        self.example.delete()

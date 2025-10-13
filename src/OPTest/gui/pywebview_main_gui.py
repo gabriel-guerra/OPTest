@@ -10,9 +10,13 @@ from subprocess import call, run
 
 
 class Api:
-    def get_test_folder(self):
+    def get_main_repo(self):
         cwd = Path.cwd()
         main_repo = cwd.parent.parent.parent
+        return main_repo
+    
+    def get_default_test_folder(self):
+        main_repo = self.get_main_repo()
         return os.path.join(main_repo, 'test')
     
     def get_files_in_folder(self, folder_path):
@@ -157,6 +161,8 @@ class Api:
         # Get object name
         tmp = command[command.find('.')+1:]
         object_name = tmp[:tmp.find('.')]
+
+        print(all_steps.values())
 
         for value in all_steps.values():
             if value['reference'] == object_name:
@@ -304,27 +310,29 @@ class Api:
             else:
                 raise Exception("Didn't find object to update fields.")
             
-    def save_operations_data(self, folder, test, operations):
+    def save_operations_data(self, path_env_file, folder, test, operations):
         full_path = os.path.join(folder, test)
         testName = test.replace(".py", "")
 
-        header = self.build_test_header(testName)
-        commands = self.set_test_steps(operations)
+        header = self.build_test_header(path_env_file, testName)
+        commands, safe_delete = self.set_test_steps(operations)
 
         for c in commands:
             header += f"        {c}\n"
 
         with open(full_path, 'w') as f:
             f.write(header)
-
+            f.write(safe_delete)
 
     def set_test_steps(self, operations):
         
         commands = []
+        referenced_objects = []
 
         for v in operations.values():
             if v['action_type'] == 'create_object':
                 commands.append(self.build_create_object_command(v))
+                referenced_objects.append(v['reference'])
             elif v['action_type'] == 'delete_object':
                 commands.append(self.build_delete_object_command(v))
             elif v['action_type'] == 'update_field':
@@ -336,8 +344,16 @@ class Api:
             elif v['action_type'] == 'update_field_associate_objects':
                 commands.append(self.build_update_field_associate_object_command(v))
 
-        return commands
+        safe_delete = self.build_safe_delete_command(referenced_objects)
+
+        return commands, safe_delete
     
+    def build_safe_delete_command(self, referenced_objects):
+        safe_delete = f'\n    def tearDown(self):\n'
+        for obj in referenced_objects:
+            safe_delete += (f'        self.{obj}.delete()\n')
+        return safe_delete
+
     def build_create_object_command(self, operation):
         reference = operation['reference']
         type_definition = operation['additional_information']['type_definition']
@@ -399,7 +415,7 @@ class Api:
     def format_reference(self, string):
         return string.replace(" ", "_").replace("-", "_").lower()
 
-    def build_test_header(self, test_name):
+    def build_test_header(self, path_env_file, test_name):
         reference = self.format_reference(test_name)
         name = reference.title().replace("_", "")
         
@@ -409,12 +425,12 @@ from dotenv import load_dotenv
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
 import unittest
+from pathlib import Path
 
 def setUpModule():
-    load_dotenv()
-    op_url = os.getenv("OP_URL")
-    username = os.getenv("OP_USERNAME")
-    password = os.getenv("OP_PASSWORD")
+    op_url = os.environ['OP_URL']
+    username = os.environ['OP_USERNAME']
+    password = os.environ['OP_PASSWORD']
     
     global api
     api = OPTestAPIv2(op_url, username, password)
@@ -443,6 +459,60 @@ class TestScript{name}(unittest.TestCase):
         for p in paths:
             os.remove(p)
 
+
+    def find_test_folder(self):
+        result = window.create_file_dialog(webview.FileDialog.FOLDER)
+    
+        if result:
+           return result[0]
+        else:
+            window.evaluate_js("alert('Please select a folder')")
+            return None
+        
+    def find_env_file(self):
+        result = window.create_file_dialog(webview.FileDialog.OPEN)
+    
+        if result:
+           return result[0]
+        else:
+            window.evaluate_js("alert('Please select a .env file')")
+            return None
+        
+    def get_data_env_file(self, full_path):
+        with open(full_path, 'r') as f:
+            url = f.readline().replace("\n", "").replace(" ", "")
+            username = f.readline().replace("\n", "").replace(" ", "")
+            password = f.readline().replace("\n", "").replace(" ", "")
+
+            return {
+                "url": url[url.find('=')+1:],
+                "username": username[username.find('=')+1:],
+                "password": password[password.find('=')+1:]
+            }
+        
+    def create_env_file(self):
+        result = window.create_file_dialog(webview.FileDialog.FOLDER)
+        full_path = os.path.join(result[0], ".env")
+        with open(full_path, 'w') as f:
+            pass
+        return full_path
+
+    def write_env_file(self, full_path, data):
+        with open(full_path, 'w') as f:
+            f.write(f'OP_URL={data['url']}\n')
+            f.write(f'OP_USERNAME={data['username']}\n')
+            f.write(f'OP_PASSWORD={data['password']}')
+
+    def get_default_env_file(self):
+        full_path = os.path.join(self.get_main_repo(), ".env")
+        with open(full_path, 'a') as f:
+            pass
+        return full_path
+    
+    def load_env_variables(self, url, username, password):
+        os.environ['OP_URL'] = url
+        os.environ['OP_USERNAME'] = username
+        os.environ['OP_PASSWORD'] = password
 
 if __name__ == "__main__":
     webview.settings = {

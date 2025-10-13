@@ -18,25 +18,32 @@ document.querySelectorAll('form').forEach(form => {
             saveDeleteData()
         }else if (action === 'save_new_test'){
             saveNewTest()
+        }else if (action === 'env_file'){
+            writeEnvFile()
         }
     });
 });
 
 
 async function setup() {
-    if (window.pywebview && pywebview.api) {        
-        const folder = await fillDefaultTestFolder();
+    if (window.pywebview && pywebview.api) {
+        const input = document.querySelector('#input-test-folder');
+        let folder = ""
+
+        if (input.value === ""){
+            folder = await pywebview.api.get_default_test_folder();
+            input.value = folder;
+        }else{
+            folder = input.value
+        }
+
+        localStorage.setItem("envFile", await pywebview.api.get_default_env_file())
+        buildEnvSettingsMenu()
+
         await getTestFiles(folder)
     } else {
         setTimeout(setup, 50);
     }
-}
-
-async function fillDefaultTestFolder(){
-    const input = document.querySelector('#input-test-folder');
-    const testFolder = await pywebview.api.get_test_folder();
-    input.value = testFolder;
-    return testFolder;
 }
 
 async function selectedTests() {
@@ -65,12 +72,17 @@ async function runTest() {
     await pywebview.api.run_test(folder, tests)
 }
 
-function addLine(line) {
+
+
+/**
+ * Log Methods
+ */
+function addLineOnLog(line) {
     document.getElementById("log-output").textContent += line + "\n";
 }   
 
 function commandFinished(code) {
-    addLine("Process finished with code " + code);
+    addLineOnLog("Process finished with code " + code);
 }
 
 function toggleLogOutput(){
@@ -84,6 +96,9 @@ function toggleLogOutput(){
     }
 }
 
+/**
+ * Navigation methods
+ */
 async function loadEditTestPage(){
     const tests = await selectedTests()
     if (tests.length === 0){
@@ -110,39 +125,32 @@ async function loadIndexPage(){
     window.location.href = url;
 }
 
-function saveOperationsData(){
-    localStorage.setItem("operations", JSON.stringify(operations));
-}
-
-function clearLocalStorage(){
-    localStorage.clear()
-}
-
 async function returnToIndexPage(){
     saveOperationsData()
 
     // Get localStorage data
     const operations = JSON.parse(localStorage.getItem("operations"))
+    const pathEnvFile = localStorage.getItem("envFile")
     const folderPath = localStorage.getItem("folderPath")
     const testName = localStorage.getItem("testName")
 
-    await pywebview.api.save_operations_data(folderPath, testName, operations)
+    await pywebview.api.save_operations_data(pathEnvFile, folderPath, testName, operations)
     
     clearLocalStorage()
     await loadIndexPage()
 }
 
+/**
+ * Popup menu
+ */
 function closePopUpMenu(menuId){
     const menu = document.getElementById(menuId)
-    menu.classList.add('hide');
-
-    clearActionsTable()
-    buildActionsTable()
-}
-
-function closeIndexPopUpMenu(menuId){
-    const menu = document.getElementById(menuId)
     menu.close()
+
+    if (window.location.href.includes('test-edit')){
+        clearActionsTable()
+        buildActionsTable()
+    }
 }
 
 function openPopUpMenu(menuId){
@@ -158,6 +166,47 @@ async function buildCreateTest(){
         behavior: 'smooth',
         block: 'center'
     });
+}
+
+async function callBuildEnvSettingsMenu(){
+    openPopUpMenu('menu-setting');
+    buildEnvSettingsMenu()
+}
+
+async function buildEnvSettingsMenu(){
+    const input = document.getElementById('input-env-file')
+
+    if (input.value === ''){
+        input.value = localStorage.getItem("envFile")
+    }
+
+    const data = await pywebview.api.get_data_env_file(input.value);
+    const { url, username, password } = data;
+
+    const inputUrl = document.getElementById('input-op-url')
+    const inputUsername = document.getElementById('input-op-username')
+    const inputPassword = document.getElementById('input-op-password')
+
+    inputUrl.value = url
+    inputUsername.value = username
+    inputPassword.value = password
+
+    loadEnvVariables(input.value)
+
+}
+
+
+/**
+ * Test Operations
+ */
+function saveOperationsData(){
+    localStorage.setItem("operations", JSON.stringify(operations));
+}
+
+function clearLocalStorage(){
+    const folderPath = localStorage.getItem("folderPath")
+    localStorage.clear()
+    localStorage.setItem("envFile", folderPath)
 }
 
 async function saveNewTest(){
@@ -188,4 +237,66 @@ async function deleteTest(){
     }
 
     loadIndexPage()
+}
+
+async function findTestFolder(){
+    const fullpath = await pywebview.api.find_test_folder()
+
+    if (fullpath){
+        const input = document.getElementById('input-test-folder')
+        input.value = fullpath
+        clearTestFileList()
+        setup()
+    }
+}
+
+function clearTestFileList(){
+    const select = document.getElementById('tests-list');
+    select.innerHTML = ``
+}
+
+
+/**
+ * Environment Variables File
+ */
+async function findEnvFile(){
+    const path = await pywebview.api.find_env_file()
+
+    if (path){
+        const input = document.getElementById('input-env-file')
+        input.value = path
+    }
+
+    buildEnvSettingsMenu()
+}
+
+async function loadEnvVariables(fullPath){
+    const data = await pywebview.api.get_data_env_file(fullPath);
+    await pywebview.api.load_env_variables(data.url, data.username, data.password)
+}
+
+async function createEnvFile(){
+    const path = await pywebview.api.create_env_file()
+    const input = document.getElementById('input-env-file')
+    input.value = path
+    console.log(path)
+    buildEnvSettingsMenu()
+}
+
+async function writeEnvFile(){
+    const input = document.getElementById('input-env-file')
+    const inputUrl = document.getElementById('input-op-url')
+    const inputUsername = document.getElementById('input-op-username')
+    const inputPassword = document.getElementById('input-op-password')
+
+    const data = {
+        "url": inputUrl.value,
+        "username": inputUsername.value,
+        "password": inputPassword.value
+    }
+
+    localStorage.setItem("envFile", `${input.value}`)
+    await pywebview.api.write_env_file(input.value, data)
+
+    closePopUpMenu('menu-setting')
 }

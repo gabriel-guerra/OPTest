@@ -26,6 +26,7 @@ h1{
 }
 
 
+
 /* Buttons and Icons */
 .animationButton {
   /* Config start */
@@ -221,13 +222,6 @@ h1{
     color: gray;
 }
 
-table, tr{
-  width: 100%;
-}
-
-
-
-
 
 
 
@@ -271,4 +265,19 @@ table, tr{
 
 .default-button:active {
   transform: translateY(-1px);
+}
+
+
+.testManagementContainer{
+  width: 100%;
+  margin: 25px 10px;
+}
+
+.width100{
+  width: 100%;
+}
+
+.displayFlex{
+  display: flex; 
+  align-items: center;
 }

@@ -3,6 +3,7 @@ function clearDetailsCreationData(){
     const creationFields = document.getElementById("table-create-fields")
     const creationParents = document.getElementById("table-create-parents")
     const creationChildren = document.getElementById("table-create-children")
+    const safeDeleteCheckbox = document.getElementById('safe-delete-checkbox')
                 
     creationFields.innerHTML =`
         <tr>
@@ -23,6 +24,8 @@ function clearDetailsCreationData(){
             <th>Action</th>
         </tr>
     `
+
+    safeDeleteCheckbox.checked = true
 }
 
 function clearDetailsUpdateData(){

@@ -95,8 +95,11 @@ class Api:
                 step = self.parse_create_object(c)
                 test_steps[f"{step['uuid']}"] = step
             elif 'delete' in c:
-                step = self.parse_delete_object(c, test_steps)
-                test_steps[f"{step['uuid']}"] = step
+                if 'safe_delete' in c:
+                    self.add_safe_delete(c, test_steps)
+                else:
+                    step = self.parse_delete_object(c, test_steps)
+                    test_steps[f"{step['uuid']}"] = step
             elif 'bulk_update_fields' in c:
                 step = self.parse_update_fields(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
@@ -110,7 +113,15 @@ class Api:
                 step = self.parse_update_field_associate_objects(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
 
+        print(test_steps)
         return test_steps
+    
+    def add_safe_delete(self, command, all_steps):
+        tmp = command[command.find('.')+1:]
+        object_name = tmp[:tmp.find('.')]
+        for c in all_steps.values():
+            if c['reference'] == object_name and c['action_type'] == 'create_object':
+                c['safe_delete'] = True
 
     def parse_create_object(self, command):
         # Get only params
@@ -142,6 +153,7 @@ class Api:
             "reference": f"{name}",
             "action_type": "create_object",
             "action_information": f"Create: {params_list[1]} ({params_list[0]})",
+            "safe_delete": False,
             "additional_information": {
                 "type_definition": f'{params_list[0]}', 
                 "name": f'{params_list[1]}',
@@ -162,8 +174,6 @@ class Api:
         tmp = command[command.find('.')+1:]
         object_name = tmp[:tmp.find('.')]
 
-        print(all_steps.values())
-
         for value in all_steps.values():
             if value['reference'] == object_name:
                 step = {
@@ -176,8 +186,7 @@ class Api:
                     }
                 }
                 return step
-            else:
-                raise Exception("Didn't find object to delete.")
+        raise Exception("Didn't find object to delete.")
             
     def parse_update_fields(self, command, all_steps):
         uuid_code = uuid.uuid4()
@@ -214,8 +223,7 @@ class Api:
                     }
                 }
                 return step
-            else:
-                raise Exception("Didn't find object to update fields.")
+        raise Exception("Didn't find object to update fields.")
             
     def parse_transition_workflow(self, command, all_steps):
         uuid_code = uuid.uuid4()
@@ -240,8 +248,7 @@ class Api:
                     }
                 }
                 return step
-            else:
-                raise Exception("Didn't find object to transition workflow.")
+        raise Exception("Didn't find object to transition workflow.")
         
     def parse_start_workflow(self, command, all_steps):
         uuid_code = uuid.uuid4()
@@ -265,8 +272,7 @@ class Api:
                     }
                 }
                 return step
-            else:
-                raise Exception("Didn't find object to start workflow.")
+        raise Exception("Didn't find object to start workflow.")
             
     def parse_update_field_associate_objects(self, command, all_steps):
         uuid_code = uuid.uuid4()
@@ -307,8 +313,7 @@ class Api:
                     }
                 }
                 return step
-            else:
-                raise Exception("Didn't find object to update fields.")
+        raise Exception("Didn't find object to update fields.")
             
     def save_operations_data(self, path_env_file, folder, test, operations):
         full_path = os.path.join(folder, test)
@@ -322,17 +327,19 @@ class Api:
 
         with open(full_path, 'w') as f:
             f.write(header)
-            f.write(safe_delete)
+            if safe_delete is not None:
+                f.write(safe_delete)
 
     def set_test_steps(self, operations):
         
         commands = []
-        referenced_objects = []
+        referenced_to_delete = []
 
         for v in operations.values():
             if v['action_type'] == 'create_object':
                 commands.append(self.build_create_object_command(v))
-                referenced_objects.append(v['reference'])
+                if v['safe_delete'] == True:
+                    referenced_to_delete.append(v['reference'])
             elif v['action_type'] == 'delete_object':
                 commands.append(self.build_delete_object_command(v))
             elif v['action_type'] == 'update_field':
@@ -344,14 +351,16 @@ class Api:
             elif v['action_type'] == 'update_field_associate_objects':
                 commands.append(self.build_update_field_associate_object_command(v))
 
-        safe_delete = self.build_safe_delete_command(referenced_objects)
-
-        return commands, safe_delete
+        if len(referenced_to_delete) > 0:
+            safe_delete = self.build_safe_delete_command(referenced_to_delete)
+            return commands, safe_delete
+        else:
+            return commands, None
     
-    def build_safe_delete_command(self, referenced_objects):
+    def build_safe_delete_command(self, referenced_to_delete):
         safe_delete = f'\n    def tearDown(self):\n'
-        for obj in referenced_objects:
-            safe_delete += (f'        self.{obj}.delete()\n')
+        for obj in referenced_to_delete:
+            safe_delete += (f'        self.{obj}.delete()     #safe_delete\n')
         return safe_delete
 
     def build_create_object_command(self, operation):

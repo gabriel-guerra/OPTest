@@ -13,12 +13,14 @@ function buildCreateObjectView(uuid, steps){
     const tableFields = document.getElementById('table-create-fields')
     const tableParents = document.getElementById('table-create-parents')
     const tableChildren = document.getElementById('table-create-children')
+    const safeDeleteCheckbox = document.getElementById('safe-delete-checkbox')
     const saveButton = document.getElementById('create-save-button')
 
     typeDefinitionElement.value = steps.additional_information.type_definition
     nameElement.value = steps.additional_information.name
     descriptionElement.value = steps.additional_information.description
     primaryParentIdElement.value = steps.additional_information.primary_parent_id
+    safeDeleteCheckbox.checked = steps.safe_delete
     saveButton.setAttribute('uuid', uuid)
     
     let trf = 0

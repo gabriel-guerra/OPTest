@@ -47,6 +47,7 @@ function saveCreateObjectData(){
             "reference": formatName,
             "action_type": "create_object",
             "action_information": `Create: ${name.value} (${typeDefinition.value})`,
+            "safe_delete": safeDeleteCheckbox.checked,
             "additional_information": {
                 "type_definition": typeDefinition.value, 
                 "name": name.value,
@@ -54,10 +55,10 @@ function saveCreateObjectData(){
                 "primary_parent_id": primaryParentId.value,
                 "fields_list": fields,
                 "parents_list": parents,
-                "children_list": children,
-                "safe_delete": safeDeleteCheckbox.getAttribute("checked")
+                "children_list": children
             }
         }
+        console.log(newValues)
         operations[uuid] = newValues
     }
 

@@ -28,10 +28,8 @@ class TestScriptTestWfSoxissue(unittest.TestCase):
         self.opt_object.update_field_associate_objects('child', 'SOXTask', [('OPSS-AI:Status', 'Closed')])
         self.name_example = OPTestGRCObject(api, 'SOXIssue', 'Name_Example', 'a', 312, [('a', 'a')], [], [])
         self.opt_object.bulk_update_fields([('a', 'a')])
-        self.opt_object.delete()
-        self.opt_object.delete()
-        self.opt_object.delete()
+        self.maisnovoexemplo = OPTestGRCObject(api, 'SOXIssue', 'MaisNovoExemplo', '131', 123, [('312', '312')], [], [])
 
     def tearDown(self):
-        self.opt_object.delete()
-        self.name_example.delete()
+        self.name_example.delete()     #safe_delete
+        self.maisnovoexemplo.delete()     #safe_delete

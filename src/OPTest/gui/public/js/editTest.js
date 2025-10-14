@@ -112,7 +112,7 @@ function prepareEmptyRow(row){
         td1.classList.add('popupTd')
         
         td2.innerHTML += `
-            <button reference="${row.id}" class="default-button" onclick=""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg></button>
+            <button reference="${row.id}" class="default-button" onclick="toggleMultivalue(this)" title="Convert to multivalue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg></button>
             `
         }else{
             const input = document.createElement('input')
@@ -123,8 +123,8 @@ function prepareEmptyRow(row){
         }
         
         td2.innerHTML += `
-            <button reference="${row.id}" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
-            <button reference="${row.id}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
+            <button reference="${row.id}" class="default-button" onclick="addTrRow(this)" title="Add new input line"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
+            <button reference="${row.id}" class="delete-button" onclick="removeTr(this)" title="Remove input line"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
         `
 
     row.appendChild(td1)
@@ -137,7 +137,6 @@ function addTrRow(button){
     const reference = button.getAttribute("reference")
     const split = reference.split('_')
     const ref = document.getElementById(reference).parentNode;
-    console.log(ref)
     const childrenElements = ref.children
     
     let row = document.createElement('tr')
@@ -157,6 +156,16 @@ function addTrRow(button){
 
 function removeTr(button){
     const row = document.getElementById(button.getAttribute("reference"))
+    const parentElement = row.parentNode
+    
+    if (parentElement.children.length === 2){
+        const tableRow = document.createElement('tr')
+        const newId = row.id.split("_")
+        tableRow.id = `${newId[0]}_${newId[1]}_${newId[1]}_0`
+        const newRow = prepareEmptyRow(tableRow)
+        parentElement.appendChild(newRow)
+    }
+    
     row.remove()
 }
 
@@ -169,10 +178,51 @@ async function deleteTestStep(button){
         delete operations[uuid]
     }
 
-    console.log(operations)
-    
     clearActionsTable()
     buildActionsTable()
+}
+
+function toggleMultivalue(button){
+    const tableRow = document.getElementById(button.getAttribute("reference"))
+    const tdToMultivalue = tableRow.children[1]
+
+    if (tdToMultivalue.querySelector('ul')) return
+    if (tdToMultivalue.textContent != ''){
+        alert('Value must be empty before converting to multivalue')
+        return
+    }
+
+    const ul = document.createElement('ul')
+    const li = document.createElement('li')
+    li.contentEditable = true
+    
+    ul.appendChild(li)  
+    tdToMultivalue.appendChild(ul)
+
+    setMultivalueEventListener(li)
+}
+
+function setMultivalueEventListener(li){
+    li.addEventListener('keydown', e => {
+        const current = e.target;
+        if (e.key === 'Enter'){
+            e.preventDefault;
+            const newLi = document.createElement('li')
+            newLi.contentEditable = true
+            ul.appendChild(newLi)
+            newLi.focus();
+        }else if (e.key === "Backspace") {
+            if (current.textContent.trim() === "") {
+                const previous = current.previousElementSibling;
+                if (ul.children.length > 1) {
+                    e.preventDefault();
+                    current.remove();
+                    if (previous) previous.focus();
+                    else ul.firstElementChild.focus();
+                }
+            }
+        }
+    })
 }
 
 function findOPTObjectsDeclared(uuid){

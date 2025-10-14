@@ -10,6 +10,9 @@ from subprocess import call, run
 
 
 class Api:
+    def __init__(self):
+        self.process = None
+
     def get_main_repo(self):
         cwd = Path.cwd()
         main_repo = cwd.parent.parent.parent
@@ -28,7 +31,7 @@ class Api:
         def worker():
             command_args = ["python", "-u", "-m", "unittest"]
             command_args.extend(tests)  
-            process = subprocess.Popen(
+            self.process = subprocess.Popen(
                 command_args, 
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.STDOUT,
@@ -37,14 +40,25 @@ class Api:
                 bufsize=1
             )
 
-            for line in process.stdout:
-                window.evaluate_js(f'window.addLine({line.strip()!r})')
+            for line in self.process.stdout:
+                window.evaluate_js(f'window.addLineOnLog({line.strip()!r})')
 
-            process.wait()
-            window.evaluate_js(f'window.commandFinished({process.returncode})')
+            self.process.wait()
+            window.evaluate_js(f'window.commandFinished({self.process.returncode})')
+            self.process = None
 
         threading.Thread(target=worker, daemon=True).start()
         return "started"
+    
+    def stop_test(self):
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+            self.process = None
+        return "stopped"
     
     def get_edit_test_page_url(self):
         test_edit_html = os.path.join(cwd, 'public', 'html', 'test-edit.html')
@@ -328,6 +342,7 @@ class Api:
             f.write(header)
             if safe_delete is not None:
                 f.write(safe_delete)
+            f.write(f'''\nif __name__ == '__main__':\n    unittest.main()''')
 
     def set_test_steps(self, operations):
         
@@ -429,11 +444,9 @@ class Api:
         
         header = f'''
 import os
-from dotenv import load_dotenv
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
 import unittest
-from pathlib import Path
 
 def setUpModule():
     op_url = os.environ['OP_URL']
@@ -445,7 +458,6 @@ def setUpModule():
 
 def tearDownModule():
     pass
-
 
 class TestScript{name}(unittest.TestCase):
     def test_{reference}(self):
@@ -540,6 +552,12 @@ if __name__ == "__main__":
 
     api = Api()
     window = webview.create_window(f'OPTest v{version("OPTest")}', f"file://{index_html}", js_api=api)
+    
+    def on_closed():
+        api.stop_test()
+
+    window.events.closing += on_closed
+    
     webview.start(debug=True)
 
     default_test_folder = os.path.join(main_repo, 'test')

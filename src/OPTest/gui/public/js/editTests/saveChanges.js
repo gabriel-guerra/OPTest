@@ -14,33 +14,38 @@ function saveCreateObjectData(){
         const parents = []
         const children = []
         
-        for (const row of document.querySelectorAll('#table-create-fields > tr:not(:first-child)')) {
+        for (const row of document.querySelectorAll('#creation_fields_tbody > tr:not(:first-child)')) {
             const cells = row.children
             
-            if (cells[0].textContent === "" || cells[1].textContent === "") continue
-            
-            const obj = {
-                [cells[0].textContent]: cells[1].textContent
+            if (cells[0].textContent.trim() === "" || cells[1].textContent.trim() === "") continue
+
+            if (cells[1].querySelector('ul')){
+                const lis = Array.from(cells[1].querySelector('ul').children)
+                const multivalues = lis.filter(li => li.textContent.trim() !== '').map(li => li.textContent.trim())
+
+                const obj = { [cells[0].textContent.trim()]: multivalues }
+                fields.push(obj)
+            }else{
+                const obj = { [cells[0].textContent.trim()]: cells[1].textContent.trim() }
+                fields.push(obj)
             }
-            fields.push(obj)
+
         }
         
-        for (const row of document.querySelectorAll('#table-create-parents > tr:not(:first-child)')) {
+        for (const row of document.querySelectorAll('#creation_parents_tbody > tr:not(:first-child)')) {
             const cells = row.children
-            
-            if (cells[0].textContent === "") continue
-            
-            parents.push(cells[0].textContent)
+            const fistCellChild = cells[0].firstChild
+            if (fistCellChild.value === "") continue
+            parents.push(fistCellChild.value)
         }
         
-        for (const row of document.querySelectorAll('#table-create-children > tr:not(:first-child)')) {
+        for (const row of document.querySelectorAll('#creation_children_tbody > tr:not(:first-child)')) {
             const cells = row.children
-            
-            if (cells[0].textContent === "") continue
-            
-            children.push(cells[0].textContent)
+            const fistCellChild = cells[0].firstChild
+            if (fistCellChild.value === "") continue
+            children.push(fistCellChild.value)
         }
-        
+
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
         const newValues = {
             "uuid": uuid,
@@ -58,7 +63,6 @@ function saveCreateObjectData(){
                 "children_list": children
             }
         }
-        console.log(newValues)
         operations[uuid] = newValues
     }
 
@@ -77,22 +81,22 @@ function saveUpdateFieldsData(){
         
         const fields = []
         
-        for (const row of document.querySelectorAll('#table-update-fields > tr:not(:first-child)')) {
-            const cells = row.children
-            
-            if (cells[0].textContent === "" || cells[1].textContent === "") continue
-            
-            let obj = '';
-            if (cells[1].getAttribute('op-multivalue') === 'true'){
-                obj = {
-                    [cells[0].textContent]: cells[1].textContent.split(',')
-                }
+        for (const row of document.querySelectorAll('#update_fields_tbody > tr:not(:first-child)')) {
+            const cells = row.children         
+
+            if (cells[0].textContent.trim() === "" || cells[1].textContent.trim() === "") continue
+
+            if (cells[1].querySelector('ul')){
+                const lis = Array.from(cells[1].querySelector('ul').children)
+                const multivalues = lis.filter(li => li.textContent.trim() !== '').map(li => li.textContent.trim())
+                
+                const obj = { [cells[0].textContent.trim()]: multivalues }
+                fields.push(obj)
             }else{
-                obj = {
-                    [cells[0].textContent]: cells[1].textContent
-                }
+                const obj = { [cells[0].textContent.trim()]: cells[1].textContent.trim() }
+                fields.push(obj)
             }
-            fields.push(obj)
+
         }
         
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
@@ -126,15 +130,21 @@ function saveUpdateOnAssociateData(){
         
         const fields = []
         
-        for (const row of document.querySelectorAll('#table-update-associate > tr:not(:first-child)')) {
+        for (const row of document.querySelectorAll('#tupdate_associate_tbody > tr:not(:first-child)')) {
             const cells = row.children
             
-            if (cells[0].textContent === "" || cells[1].textContent === "") continue
-            
-            const obj = {
-                [cells[0].textContent]: cells[1].textContent
+            if (cells[0].textContent.trim() === "" || cells[1].textContent.trim() === "") continue
+
+            if (cells[1].querySelector('ul')){
+                const lis = Array.from(cells[1].querySelector('ul').children)
+                const multivalues = lis.filter(li => li.textContent.trim() !== '').map(li => li.textContent.trim())
+                
+                const obj = { [cells[0].textContent.trim()]: multivalues }
+                fields.push(obj)
+            }else{
+                const obj = { [cells[0].textContent.trim()]: cells[1].textContent.trim() }
+                fields.push(obj)
             }
-            fields.push(obj)
         }
         
         const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()

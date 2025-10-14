@@ -279,7 +279,7 @@ async function createEnvFile(){
     const path = await pywebview.api.create_env_file()
     const input = document.getElementById('input-env-file')
     input.value = path
-    console.log(path)
+
     buildEnvSettingsMenu()
 }
 

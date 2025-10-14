@@ -10,9 +10,9 @@ function buildCreateObjectView(uuid, steps){
     const nameElement = document.getElementById('input-create-resource-name')
     const descriptionElement = document.getElementById('input-create-resource-description')
     const primaryParentIdElement = document.getElementById('input-create-resource-primary-parent')
-    const tableFields = document.getElementById('table-create-fields')
-    const tableParents = document.getElementById('table-create-parents')
-    const tableChildren = document.getElementById('table-create-children')
+    const tbodyFields = document.getElementById('creation_fields_tbody')
+    const tbodyParents = document.getElementById('creation_parents_tbody')
+    const tbodyChildren = document.getElementById('creation_children_tbody')
     const safeDeleteCheckbox = document.getElementById('safe-delete-checkbox')
     const saveButton = document.getElementById('create-save-button')
 
@@ -23,49 +23,61 @@ function buildCreateObjectView(uuid, steps){
     safeDeleteCheckbox.checked = steps.safe_delete
     saveButton.setAttribute('uuid', uuid)
     
-    let trf = 0
-    for (const obj of steps.additional_information.fields_list){
-        for (const [key, value] of Object.entries(obj)){
+    if(steps.additional_information.fields_list.length > 0){
+        for (const obj of steps.additional_information.fields_list){
+            for (const [key, value] of Object.entries(obj)){
+                const row = document.createElement('tr')
+                row.id = `creation_fields_tr_${getConterTableRows('trf')}`
+                const newRow = prepareEmptyRow(row)
+                
+                const rowChildren = newRow.children
+                rowChildren[0].innerHTML = key
+                rowChildren[1].innerHTML = value
+                
+                tbodyFields.appendChild(newRow)
+            }
+        }
+    }else{
+        const row = document.createElement('tr')
+        row.id = `creation_fields_tr_${getConterTableRows('trf')}`
+        const newRow = prepareEmptyRow(row)
+        tbodyFields.appendChild(newRow)
+    }
+
+    if (steps.additional_information.parents_list.length > 0){
+        for (const parent of steps.additional_information.parents_list){
             const row = document.createElement('tr')
-            row.id = `creation_fields_tr_${trf}`
+            row.id = `creation_parents_tr_${getConterTableRows('trp')}`
             const newRow = prepareEmptyRow(row)
             
-            const rowChildren = newRow.children
-            rowChildren[0].innerHTML = key
-            rowChildren[1].innerHTML = value
+            const rowChildren = newRow.children[0].children
+            rowChildren[0].value = parent
             
-            tableFields.appendChild(newRow)
-
-            trf++
+            tbodyParents.appendChild(newRow)
         }
+    }else{
+        const row = document.createElement('tr')
+        row.id = `creation_parents_tr_${getConterTableRows('trp')}`
+        const newRow = prepareEmptyRow(row)
+        tbodyParents.appendChild(newRow)
     }
 
-    let trp = 0
-    for (const parent of steps.additional_information.parents_list){
-        const row = document.createElement('tr')
-        row.id = `creation_parents_tr_${trp}`
-        const newRow = prepareEmptyRow(row)
-        
-        const rowChildren = newRow.children[0].children
-        rowChildren[0].value = parent
-        
-        tableParents.appendChild(newRow)
-        
-        trp++
-    }
-
-    let trc = 0
-    for (const children of steps.additional_information.children_list){
-        const row = document.createElement('tr')
-        row.id = `creation_children_tr_${trc}`
-        const newRow = prepareEmptyRow(row)
+    if (steps.additional_information.children_list.length > 0){
+        for (const children of steps.additional_information.children_list){
+            const row = document.createElement('tr')
+            row.id = `creation_children_tr_${getConterTableRows('trc')}`
+            const newRow = prepareEmptyRow(row)
+                
+            const rowChildren = newRow.children[0].children
+            rowChildren[0].value = children
             
-        const rowChildren = newRow.children[0].children
-        rowChildren[0].value = children
-        
-        tableChildren.appendChild(newRow)
-
-        trc++
+            tbodyChildren.appendChild(newRow)
+        }
+    }else{
+        const row = document.createElement('tr')
+        row.id = `creation_children_tr_${getConterTableRows('trc')}`
+        const newRow = prepareEmptyRow(row)
+        tbodyChildren.appendChild(newRow)
     }
 }
 

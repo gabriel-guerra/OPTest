@@ -6,9 +6,9 @@ function newCreateObjectView(){
     if (document.getElementById("menu-create-object").classList.contains("show")) return
     openPopUpMenu("menu-create-object")
 
-    const tableFields = document.getElementById('table-create-fields')
-    const tableParents = document.getElementById('table-create-parents')
-    const tableChildren = document.getElementById('table-create-children')
+    const tbodyFields = document.getElementById('creation_fields_tbody')
+    const tbodyParents = document.getElementById('creation_parents_tbody')
+    const tbodyChildren = document.getElementById('creation_children_tbody')
     const saveButton = document.getElementById('create-save-button')
 
     const uuid = crypto.randomUUID()
@@ -16,22 +16,21 @@ function newCreateObjectView(){
     
     // table fields
     const row_fields = document.createElement('tr')
-    row_fields.id = `creation_fields_tr_${0}`
+    row_fields.id = `creation_fields_tr_${getConterTableRows('trf')}`
     const newRowFields = prepareEmptyRow(row_fields)
-    tableFields.appendChild(newRowFields)
+    tbodyFields.appendChild(newRowFields)
 
     // table parents
     const row_parents = document.createElement('tr')
-    row_parents.id = `creation_parents_tr_${0}`
+    row_parents.id = `creation_parents_tr_${getConterTableRows('trf')}`
     const newRowParents = prepareEmptyRow(row_parents)
-    tableParents.appendChild(newRowParents)
+    tbodyParents.appendChild(newRowParents)
 
     // table children
     const row_children = document.createElement('tr')
-    row_children.id = `creation_children_tr_${0}`
+    row_children.id = `creation_children_tr_${getConterTableRows('trp')}`
     const newRowChildren = prepareEmptyRow(row_children)
-    tableChildren.appendChild(newRowChildren)
-
+    tbodyChildren.appendChild(newRowChildren)
 }
 
 
@@ -46,7 +45,7 @@ function newUpdateFieldsView(){
 
     const uuid = crypto.randomUUID()
     const nameElement = document.getElementById('select-update-resource-name')
-    const tableFields = document.getElementById('table-update-fields')
+    const tbodyFields = document.getElementById('update_fields_tbody')
     const saveButton = document.getElementById('update-save-button')
 
     const objects = findOPTObjectsDeclared(uuid)
@@ -55,28 +54,9 @@ function newUpdateFieldsView(){
     saveButton.setAttribute('uuid', uuid)
     
     const row = document.createElement('tr')
-    row.id = `update_fields_tr_${0}`
-
-    const field = document.createElement('td')
-    const val = document.createElement('td')
-    const buttons = document.createElement('td')
-
-    field.classList.add('popupTd')
-    val.classList.add('popupTd')
-
-    buttons.innerHTML = `
-        <button type="button" reference="update_fields_tr_${0}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
-        <button type="button" reference="update_fields_tr_${0}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
-    `
-    
-    field.setAttribute("contenteditable", "true")
-    val.setAttribute("contenteditable", "true")
-    
-    row.appendChild(field)
-    row.appendChild(val)
-    row.appendChild(buttons)
-    tableFields.appendChild(row)
-
+    row.id = `update_fields_tr_${getConterTableRows('trf')}`
+    const newRowFields = prepareEmptyRow(row)
+    tbodyFields.appendChild(newRowFields)
 }
 
     
@@ -92,7 +72,7 @@ function newUpdateOnAssociateView(){
     const uuid = crypto.randomUUID()
     
     const nameElement = document.getElementById('select-update-associate-resource-name')
-    const tableFields = document.getElementById('table-update-associate')
+    const tbodyFields = document.getElementById('update_associate_tbody')
 
     const objects = findOPTObjectsDeclared(uuid)
     fillNewSelectsPopupMenu(objects, nameElement)
@@ -102,27 +82,9 @@ function newUpdateOnAssociateView(){
     saveButton.setAttribute('uuid', uuid)
     
     const row = document.createElement('tr')
-    row.id = `associate_fields_tr_${0}`
-
-    const field = document.createElement('td')
-    const val = document.createElement('td')
-    const buttons = document.createElement('td')
-
-    field.classList.add('popupTd')
-    val.classList.add('popupTd')
-
-    buttons.innerHTML = `
-        <button type="button" reference="associate_fields_tr_${0}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
-        <button type="button" reference="associate_fields_tr_${0}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
-    `
-    field.setAttribute("contenteditable", "true")
-    val.setAttribute("contenteditable", "true")
-    
-    row.appendChild(field)
-    row.appendChild(val)
-    row.appendChild(buttons)
-    tableFields.appendChild(row)
-
+    row.id = `associate_fields_tr_${getConterTableRows('trf')}`
+    const newRowFields = prepareEmptyRow(row)
+    tbodyFields.appendChild(newRowFields)
 }
 
 

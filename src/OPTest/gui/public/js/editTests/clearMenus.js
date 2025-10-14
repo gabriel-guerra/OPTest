@@ -6,23 +6,29 @@ function clearDetailsCreationData(){
     const safeDeleteCheckbox = document.getElementById('safe-delete-checkbox')
                 
     creationFields.innerHTML =`
-        <tr>
-            <th>Field</th>
-            <th>Value</th>
-            <th>Action</th>
-        </tr>
+        <tbody id="creation_fields_tbody">
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+        </tbody>
     `
     creationParents.innerHTML = `
-        <tr>
-            <th>Parant ID</th>
-            <th>Action</th>
-        </tr>
+        <tbody id="creation_parents_tbody">
+            <tr>
+                <th>Parant ID</th>
+                <th>Action</th>
+            </tr>
+        </tbody>
     `
     creationChildren.innerHTML = `  
-        <tr>
-            <th>Child ID</th>
-            <th>Action</th>
-        </tr>
+        <tbody id="creation_children_tbody">
+            <tr>
+                <th>Child ID</th>
+                <th>Action</th>
+            </tr>
+        </tbody>
     `
 
     safeDeleteCheckbox.checked = true
@@ -34,11 +40,13 @@ function clearDetailsUpdateData(){
     const selectUpdate = document.getElementById('select-update-resource-name')
     
     updateFields.innerHTML =`
-    <tr>
-    <th>Field</th>
-    <th>Value</th>
-    <th>Action</th>
-    </tr>
+        <tbody id="update_fields_tbody">
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+        </tbody>
     `
     selectUpdate.innerHTML = `
     <option value="" disabled selected>Select an object</option>
@@ -51,11 +59,13 @@ function clearDetailsUpdateAssociateData(){
     const selectUpdate = document.getElementById('select-update-associate-resource-name')
     
     updateAssociate.innerHTML =`
-    <tr>
-            <th>Field</th>
-            <th>Value</th>
-            <th>Action</th>
-        </tr>
+        <tbody id="update_associate_tbody">
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+        </tbody>
     `
 
     selectUpdate.innerHTML = `

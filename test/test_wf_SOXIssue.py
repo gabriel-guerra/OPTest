@@ -20,7 +20,7 @@ def tearDownModule():
 
 class TestScriptTestWfSoxissue(unittest.TestCase):
     def test_test_wf_soxissue(self):
-        self.opt_object = OPTestGRCObject(api, 'SOXIssue', 'OPT Object', 'Example Description', 3156, [('OPSS-Iss:Priority', 'High')], [], [])
+        self.opt_object = OPTestGRCObject(api, 'SOXIssue', 'OPT Object', 'Example Description', 3156, [], [], [])
         self.opt_object.bulk_update_fields([('OPSS-Iss:Additional Description', 'Low'), ('OPSS-Iss:Issue Type', 'Scoping'), ('OPSS-Iss:Issue Approver', 'OpenPagesAdministrator'), ('OPSS-Iss:Domain', ['Compliance', 'Technology', 'Operational'])])
         self.opt_object.transition_workflow('Submit for review')
         self.opt_object.transition_workflow('Approve')

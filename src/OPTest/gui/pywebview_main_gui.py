@@ -113,7 +113,6 @@ class Api:
                 step = self.parse_update_field_associate_objects(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
 
-        print(test_steps)
         return test_steps
     
     def add_safe_delete(self, command, all_steps):

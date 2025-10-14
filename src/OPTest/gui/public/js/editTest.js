@@ -3,6 +3,27 @@ const operations = JSON.parse(localStorage.getItem("data"));
 setH1Element()
 buildActionsTable()
 
+// counters for table rows
+localStorage.setItem('trf', '0')
+localStorage.setItem('trp', '0')
+localStorage.setItem('trc', '0')
+
+function getConterTableRows(counterType){
+    if (counterType === 'trf'){
+        let trf = Number(localStorage.getItem('trf'))
+        localStorage.setItem('trf', `${trf+1}`)
+        return trf
+    }else if (counterType === 'trp'){
+        let trp = Number(localStorage.getItem('trp'))
+        localStorage.setItem('trp', `${trp+1}`)
+        return trp
+    }else if (counterType === 'trc'){
+        let trc = Number(localStorage.getItem('trc'))
+        localStorage.setItem('trc', `${trc+1}`)
+        return trc
+    }
+}
+
 function setH1Element(){
     const h1 = document.getElementById('h1-header')
     h1.innerHTML = `Edit test file: <span id="testFileName">${localStorage.getItem('testName')}</span>`
@@ -77,32 +98,34 @@ function clearActionsTable(){
 }
 
 function prepareEmptyRow(row){
+    
+    const td1 = document.createElement('td')
+    const td2 = document.createElement('td')
+
     if (row.id.includes('field')){
         const td0 = document.createElement('td')
         td0.classList.add('popupTd')
         td0.setAttribute("contenteditable", "true")
         row.appendChild(td0)
-    }
-
-    const td1 = document.createElement('td')
-    if (!row.id.includes('field')){
-        const input = document.createElement('input')
-        input.classList.add('inputFormat')
-        input.setAttribute("type", "number")
-        input.setAttribute('onwheel', 'this.blur()');
-        td1.appendChild(input)
-    }else{
+        
         td1.setAttribute("contenteditable", "true")
         td1.classList.add('popupTd')
-    }
-
-    const td2 = document.createElement('td')
-    
-    // td1.setAttribute("contenteditable", "true")
-    td2.innerHTML = `
-        <button reference="${row.id}" position="below" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
-        <button reference="${row.id}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
-    `
+        
+        td2.innerHTML += `
+            <button reference="${row.id}" class="default-button" onclick=""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg></button>
+            `
+        }else{
+            const input = document.createElement('input')
+            input.classList.add('inputFormat')
+            input.setAttribute("type", "number")
+            input.setAttribute('onwheel', 'this.blur()');
+            td1.appendChild(input)
+        }
+        
+        td2.innerHTML += `
+            <button reference="${row.id}" class="default-button" onclick="addTrRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg></button>
+            <button reference="${row.id}" class="delete-button" onclick="removeTr(this)"><svg viewBox="0 0 15 17.5" height="17.5" width="15" xmlns="http://www.w3.org/2000/svg" ><path transform="translate(-2.5 -1.25)" d="M15,18.75H5A1.251,1.251,0,0,1,3.75,17.5V5H2.5V3.75h15V5H16.25V17.5A1.251,1.251,0,0,1,15,18.75ZM5,5V17.5H15V5Zm7.5,10H11.25V7.5H12.5V15ZM8.75,15H7.5V7.5H8.75V15ZM12.5,2.5h-5V1.25h5V2.5Z" id="Fill"></path></svg></button>
+        `
 
     row.appendChild(td1)
     row.appendChild(td2)
@@ -113,18 +136,23 @@ function prepareEmptyRow(row){
 function addTrRow(button){
     const reference = button.getAttribute("reference")
     const split = reference.split('_')
+    const ref = document.getElementById(reference).parentNode;
+    console.log(ref)
+    const childrenElements = ref.children
+    
     let row = document.createElement('tr')
-    row.id = `${split[0]}_${split[1]}_${split[2]}_${Number(split[3]) - 1}`
+    if (childrenElements.length === 1){
+        row.id = `${split[0]}_${split[1]}_td_1`
+        row.setAttribute("counter", 0)
+    }else{
+        const lastElement = childrenElements[childrenElements.length-1]
+        let conterValue = Number(lastElement.getAttribute("counter")) + 1
+        row.id = `${split[0]}_${split[1]}_td_${conterValue}`
+        row.setAttribute("counter", conterValue)
+    }
 
     row = prepareEmptyRow(row)
-    
-    ref = document.getElementById(reference);
-
-    if (button.getAttribute("position") === 'above'){
-        ref.parentNode.insertBefore(row, ref);
-    }else if (button.getAttribute("position") === 'below'){
-        ref.parentNode.insertBefore(row, ref.nextSibling);
-    }
+    ref.appendChild(row)
 }
 
 function removeTr(button){

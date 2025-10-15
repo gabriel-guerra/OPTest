@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPTest - Edit</title>
+    <link rel="stylesheet" href="../css/popupMenu.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+    <h1 id="h1-header"></h1>
+
+    <div class="testManagementContainer">
+        <div>
+            <span>Object Actions</span>
+            <button id="btn-create-object" class="default-button" onclick="newCreateObjectView()">Create object</button>
+            <button id="btn-bulk-edit-field" class="default-button" onclick="newUpdateFieldsView()">Edit fields</button>
+            <button id="btn-edit-field-associate-object" class="default-button" onclick="newUpdateOnAssociateView()">Edit on associate object</button>
+            <button id="btn-delete-object" class="delete-button" onclick="newDeleteView()">Delete object</button>
+        </div>
+        
+        <div>
+            <span>Workflow Actions</span>
+            <button id="btn-start-workflow" class="default-button" onclick="newStartWorkflowView()">Start workflow</button>
+            <button id="btn-start-workflow" class="default-button" onclick="newTransitionWorkflowView()">Transition workflow</button>
+            
+            <span>
+                <button id="btn-finish-edit" class="run-button" onclick="returnToIndexPage()">Finish edit</button>
+            </span>
+        </div>
+    </div>
+    
+    <div class="testManagementContainer">
+        <table id="test-actions" style="width: 100%;">
+            <tr>
+                <th>Action Type</th>
+                <th>Action information</th>
+                <th>Edit</th>
+            </tr>
+        </table>
+    </div>
+
+    <dialog id="menu-create-object" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-create-object'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Create new GRC Instance</h4>
+        </div>
+
+        <form action="../js/jsApi.js" method="post">
+            <div class="popupContainer">
+                <div>
+                    <label for="input-create-resource-type-definition">Object Type</label>
+                    <input class="inputFormat" type="text" name="input-create-resource-type-definition" id="input-create-resource-type-definition">
+                </div>
+                <div>
+                    <label for="input-create-resource-name">Object Name</label>
+                    <input class="inputFormat" type="text" name="input-create-resource-name" id="input-create-resource-name">
+                </div>
+                <div>
+                    <div>
+                        <label for="input-create-resource-description">Description</label>
+                    </div>
+                    <textarea class="inputFormat" type="text" name="input-create-resource-description" id="input-create-resource-description"></textarea>
+                </div>
+                <div>
+                    <label for="input-create-resource-primary-parent">Primary parent ID</label>
+                    <input class="inputFormat" type="number" onwheel="this.blur()" name="input-create-resource-primary-parent" id="input-create-resource-primary-parent">
+                </div>
+                <div>
+                    <table id="table-create-fields" class="popupTableFields">
+                        <tbody id="creation_fields_tbody">
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                                <th>Actions</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <table id="table-create-parents" class="popupTableParents width100">
+                        <tbody id="creation_parents_tbody">
+                            <tr>
+                                <th>Parant ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <table id="table-create-children" class="popupTableChildren width100">
+                        <tbody id="creation_children_tbody">
+                            <tr>
+                                <th>Child ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <input name="safe-delete-checkbox" id="safe-delete-checkbox" type="checkbox" checked onchange="">
+                    <label for="safe-delete-checkbox">Exclude object after tests</label>
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="create-save-button" value="create_object">Save</button>
+        </form>
+    </dialog>
+
+    <dialog id="menu-update-fields" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-update-fields'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Edit fields of a GRC Instance</h4>
+        </div>
+        
+        <form action="">
+            <div class="popupContainer">
+                <div>
+                    <label for="select-update-resource-name">Object Name</label>
+                    <!-- <input class="inputFormat" type="text" name="select-update-resource-name" id="select-update-resource-name"> -->
+                    <select class="inputFormat" name="select-update-resource-name" id="select-update-resource-name">
+                        <option value="" disabled selected>Select an object</option>
+                    </select>
+                </div>
+                <div>
+                    <table id="table-update-fields" class="popupTableFields width100">
+                        <tbody id="update_fields_tbody">
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                                <th>Actions</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="update-save-button" value="update_field">Save</button>
+        </form>
+    </dialog>
+
+    <dialog id="menu-update-associate" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-update-associate'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Edit fields on an associate instance</h4>
+        </div>
+
+        <form action="">
+            <div class="popupContainer">
+                <div>
+                    <label for="select-update-associate-resource-name">Main object name</label>
+                    <select class="inputFormat" type="text" name="select-update-associate-resource-name" id="select-update-associate-resource-name">
+                        <option value="" disabled selected>Select an object</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="input-update-associate-association-type">Association Type</label>
+                    <select class="inputFormat" id="input-update-associate-association-type" name="input-update-associate-association-type">
+                        <option value="child">Child</option>
+                        <option value="parent">Parent</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="input-update-associate-type-definition">Object Type</label>
+                    <input class="inputFormat" type="text" name="input-update-associate-type-definition" id="input-update-associate-type-definition">
+                </div>
+                <div>
+                    <table id="table-update-associate" class="popupTableFields width100">
+                        <tbody id="update_associate_tbody">
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                                <th>Actions</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="update-associate-save-button" value="update_field_associate_objects">Save</button>
+        </form>
+    </dialog>
+
+    <dialog id="menu-start_workflow" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-start_workflow'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Start workflow</h4>
+        </div>
+        
+        <form action="">
+            <div class="popupContainer">
+                <div>
+                    <label for="select-start_workflow-resource-name">Object Name</label>
+                    <select class="inputFormat" type="text" name="select-start_workflow-resource-name" id="select-start_workflow-resource-name">
+                        <option value="" disabled selected>Select an object</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="input-start-workflow-name">Workflow Name</label>
+                    <input class="inputFormat" type="text" name="input-start_workflow-name" id="input-start_workflow-name">
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="start_workflow-save-button" value="start_workflow">Save</button>
+        </form>
+    </dialog>
+
+    <dialog id="menu-transition_workflow" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-transition_workflow'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Start workflow</h4>
+        </div>
+        
+        <form action="">
+            <div class="popupContainer">
+                <div>
+                    <label for="select-transition_workflow-resource-name">Object Name</label>
+                    <select class="inputFormat" type="text" name="select-transition_workflow-resource-name" id="select-transition_workflow-resource-name">
+                        <option value="" disabled selected>Select an object</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="input-transition_workflow-name">Workflow Action Name</label>
+                    <input class="inputFormat" type="text" name="input-transition_workflow-name" id="input-transition_workflow-name">
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="transition_workflow-save-button" value="transition_workflow">Save</button>
+        </form>
+    </dialog>
+
+    <dialog id="menu-delete-object" class="popupMenu">
+        
+        <div class="headerPopup">
+            <span onclick="closePopUpMenu('menu-delete-object'); event.stopPropagation();" class="closePopup" title="Close Modal">&times;</span>
+            <h4>Start workflow</h4>
+        </div>
+
+        <form action="">
+            <div class="popupContainer">
+                <div>
+                    <label for="select-delete-resource-name">Object Name</label>
+                    <select class="inputFormat" type="text" name="select-delete-resource-name" id="select-delete-resource-name">
+                        <option value="" disabled selected>Select an object</option>
+                    </select>
+                </div>
+            </div>
+            <button class="actionButtonPopup" type="submit" id="delete-save-button" value="delete_object">Save</button>
+        </form>
+    </dialog>
+
+
+</body>
+<script src="../js/editTest.js"></script>
+<script src="../js/editTests/clearMenus.js"></script>
+<script src="../js/editTests/createNewSteps.js"></script>
+<script src="../js/editTests/findAndEdit.js"></script>
+<script src="../js/editTests/saveChanges.js"></script>
+<script src="../js/jsApi.js"></script>
+</html>

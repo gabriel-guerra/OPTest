@@ -6,10 +6,12 @@ import unittest
 
 
 def setUpModule():
-    op_url = os.environ['OP_URL']
-    username = os.environ['OP_USERNAME']
-    password = os.environ['OP_PASSWORD']
-        
+    # Get environment variables
+    load_dotenv()
+    op_url = os.getenv("OP_URL")
+    username = os.getenv("OP_USERNAME")
+    password = os.getenv("OP_PASSWORD")
+    
     # Example of API connected to an IBM virtual machine
     global api
     api = OPTestAPIv2(op_url, username, password)
@@ -19,7 +21,7 @@ def tearDownModule():
 
 
 class TestRiskWorkflow(unittest.TestCase):
-    # @unittest.skip("RiskEval auto-naming for new objects must be turned on")
+    @unittest.skip("RiskEval auto-naming for new objects must be turned on")
     def test_RCSA_workflow(self):
 
         # If this test fails due to the following error:
@@ -75,7 +77,7 @@ class TestRiskWorkflow(unittest.TestCase):
 
     def tearDown(self):
         # Delete resource
-        self.opt_object.delete()    #safe_delete
+        self.opt_object.delete()
 
 if __name__ == '__main__':
     unittest.main()

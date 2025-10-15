@@ -1,0 +1,97 @@
+body {font-family: Arial, Helvetica, sans-serif;}
+
+.popupContainer {
+  padding: 16px;
+}
+
+.closePopup {
+  position: absolute;
+  right: 15px;
+  top: 5px;
+  color: #000;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.closePopup:hover,
+.closePopup:focus {
+  color: red;
+  cursor: pointer;
+}
+
+.headerPopup{
+  font-weight: 400;
+}
+
+.inputFormat, .popupTd{
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  outline: none;   
+}
+
+.inputFormat:focus, .popupTd:focus {
+  border-color: #007bff;        
+  box-shadow: 0 0 5px #007bff;  
+}
+
+.actionButtonPopup {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  outline: none;
+  background-color: #2476e2;
+  color: #eee;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+}
+
+.actionButtonPopup:hover {
+  transform: translateY(-3px);
+}
+
+.popupMenu::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.popupMenu {
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  background: white;
+}
+
+.popupTableFields tr{
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+}
+
+.popupTableParents tr,
+.popupTableChildren tr{
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+}
+
+
+.cogButton {
+  position: absolute;
+  right: 15px;
+  top: 5px;
+  color: #000;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.cogButton:hover,
+.cogButton:focus {
+  color: #2476e2;
+  cursor: pointer;
+}

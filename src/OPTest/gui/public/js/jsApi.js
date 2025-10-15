@@ -271,8 +271,8 @@ async function findEnvFile(){
 }
 
 async function loadEnvVariables(fullPath){
-    const data = await pywebview.api.get_data_env_file(fullPath);
-    await pywebview.api.load_env_variables(data.url, data.username, data.password)
+    const data = await pywebview.api.get_data_env_file();
+    await pywebview.api.load_env_variables(fullPath)
 }
 
 async function createEnvFile(){

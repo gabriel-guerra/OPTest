@@ -9,9 +9,18 @@ import subprocess
 import threading
 from subprocess import call, run
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(BASE_DIR, "classes"))
-sys.path.append(os.path.join(BASE_DIR, "tests"))
+PROJECT_ROOT = os.path.dirname(sys.executable)
+
+TESTS_DIR = os.path.join(PROJECT_ROOT, "tests")
+os.makedirs(TESTS_DIR, exist_ok=True)
+
+BASE_DIR = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+CLASSES_DIR = os.path.join(PROJECT_ROOT, "_internal", "classes")
+sys.path.append(CLASSES_DIR)
+
+os.environ["CLASSES_DIR"] = CLASSES_DIR
+
+HTML_FILE = os.path.join(BASE_DIR, "gui", "public", "html", "index.html")
 
 class Api:
     def __init__(self):
@@ -21,8 +30,7 @@ class Api:
         return BASE_DIR
     
     def get_default_test_folder(self):
-        main_repo = self.get_main_repo()
-        return os.path.join(main_repo, 'test')
+        return TESTS_DIR
     
     def get_files_in_folder(self, folder_path):
         folder = Path(folder_path)
@@ -445,16 +453,15 @@ class Api:
         name = reference.title().replace("_", "")
         
         header = f'''
-import sys
 import os
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(BASE_DIR)
-
-from OPTest import OPTestAPIv2
-from OPTest import OPTestGRCObject
-
+import sys
 import unittest
+
+CLASSES_DIR = os.environ['CLASSES_DIR']
+sys.path.append(CLASSES_DIR)
+
+from OPTestAPIv2 import OPTestAPIv2
+from OPTestGRCObject import OPTestGRCObject
 
 def setUpModule():
     op_url = os.environ['OP_URL']
@@ -554,16 +561,14 @@ if __name__ == "__main__":
         'SHOW_DEFAULT_MENUS': True
     }
 
-    index_html = os.path.join(BASE_DIR, 'gui', 'public', 'html', 'index.html')
-
     api = Api()
-    window = webview.create_window(f'OPTest v0.0.1', f"file://{index_html}", js_api=api)
+    window = webview.create_window(f'OPTest v0.0.1', f"file://{HTML_FILE}", js_api=api)
     
     def on_closed():
         api.stop_test()
 
     window.events.closing += on_closed
     
-    webview.start(debug=True)
+    webview.start()
 
     default_test_folder = os.path.join(BASE_DIR, 'test')

@@ -1,3 +1,4 @@
+import sys
 import uuid
 import ast
 import os
@@ -8,15 +9,16 @@ import subprocess
 import threading
 from subprocess import call, run
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(BASE_DIR, "classes"))
+sys.path.append(os.path.join(BASE_DIR, "tests"))
 
 class Api:
     def __init__(self):
         self.process = None
 
     def get_main_repo(self):
-        cwd = Path.cwd()
-        main_repo = cwd.parent.parent.parent
-        return main_repo
+        return BASE_DIR
     
     def get_default_test_folder(self):
         main_repo = self.get_main_repo()
@@ -61,7 +63,7 @@ class Api:
         return "stopped"
     
     def get_edit_test_page_url(self):
-        test_edit_html = os.path.join(cwd, 'public', 'html', 'test-edit.html')
+        test_edit_html = os.path.join(BASE_DIR, 'gui', 'public', 'html', 'test-edit.html')
         return test_edit_html
     
     def get_index_page_url(self):
@@ -443,9 +445,15 @@ class Api:
         name = reference.title().replace("_", "")
         
         header = f'''
+import sys
 import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
+
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
+
 import unittest
 
 def setUpModule():
@@ -546,12 +554,10 @@ if __name__ == "__main__":
         'SHOW_DEFAULT_MENUS': True
     }
 
-    cwd = Path.cwd()
-    main_repo = cwd.parent.parent.parent
-    index_html = os.path.join(cwd, 'public', 'html', 'index.html')
+    index_html = os.path.join(BASE_DIR, 'gui', 'public', 'html', 'index.html')
 
     api = Api()
-    window = webview.create_window(f'OPTest v{version("OPTest")}', f"file://{index_html}", js_api=api)
+    window = webview.create_window(f'OPTest v0.0.1', f"file://{index_html}", js_api=api)
     
     def on_closed():
         api.stop_test()
@@ -560,4 +566,4 @@ if __name__ == "__main__":
     
     webview.start(debug=True)
 
-    default_test_folder = os.path.join(main_repo, 'test')
+    default_test_folder = os.path.join(BASE_DIR, 'test')

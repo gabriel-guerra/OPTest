@@ -1,9 +1,13 @@
+import sys
 import os
-from dotenv import load_dotenv
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
+
 from OPTest import OPTestAPIv2
 from OPTest import OPTestGRCObject
-import unittest
 
+import unittest
 
 def setUpModule():
     op_url = os.environ['OP_URL']

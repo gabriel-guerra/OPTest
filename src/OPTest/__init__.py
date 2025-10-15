@@ -1,2 +1,2 @@
-from .OPTestAPIv2 import OPTestAPIv2
-from .OPTestGRCObject import OPTestGRCObject
+from .classes.OPTestAPIv2 import *
+from .classes.OPTestGRCObject import *

@@ -75,7 +75,7 @@ class Api:
         return test_edit_html
     
     def get_index_page_url(self):
-        return index_html
+        return HTML_FILE
 
     def format_commands(self, file_path):
         command = ""
@@ -544,10 +544,12 @@ class TestScript{name}(unittest.TestCase):
             pass
         return full_path
     
-    def load_env_variables(self, url, username, password):
-        os.environ['OP_URL'] = url
-        os.environ['OP_USERNAME'] = username
-        os.environ['OP_PASSWORD'] = password
+    def load_env_variables(self, full_path):
+        data = self.get_data_env_file(full_path)
+
+        os.environ['OP_URL'] = data['url']
+        os.environ['OP_USERNAME'] = data['username']
+        os.environ['OP_PASSWORD'] = data['password']
 
 if __name__ == "__main__":
     webview.settings = {
@@ -561,6 +563,9 @@ if __name__ == "__main__":
         'SHOW_DEFAULT_MENUS': True
     }
 
+import traceback
+
+try:
     api = Api()
     window = webview.create_window(f'OPTest v0.0.1', f"file://{HTML_FILE}", js_api=api)
     
@@ -572,3 +577,8 @@ if __name__ == "__main__":
     webview.start()
 
     default_test_folder = os.path.join(BASE_DIR, 'test')
+
+except Exception as e:
+    with open("error_log.txt", "w") as f:
+        f.write(traceback.format_exc())
+    input("Error. Press ENTER to exit.")

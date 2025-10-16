@@ -271,7 +271,6 @@ async function findEnvFile(){
 }
 
 async function loadEnvVariables(fullPath){
-    const data = await pywebview.api.get_data_env_file();
     await pywebview.api.load_env_variables(fullPath)
 }
 
@@ -297,6 +296,7 @@ async function writeEnvFile(){
 
     localStorage.setItem("envFile", `${input.value}`)
     await pywebview.api.write_env_file(input.value, data)
+    await loadEnvVariables(input.value)
 
     closePopUpMenu('menu-setting')
 }

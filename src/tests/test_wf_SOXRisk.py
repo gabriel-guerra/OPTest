@@ -1,9 +1,12 @@
 import os
-from dotenv import load_dotenv
-from OPTest import OPTestAPIv2
-from OPTest import OPTestGRCObject
+import sys
 import unittest
 
+CLASSES_DIR = os.environ['CLASSES_DIR']
+sys.path.append(CLASSES_DIR)
+
+from OPTestAPIv2 import OPTestAPIv2
+from OPTestGRCObject import OPTestGRCObject
 
 def setUpModule():
     op_url = os.environ['OP_URL']

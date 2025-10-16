@@ -1,3 +1,4 @@
+import sys
 import uuid
 import ast
 import os
@@ -8,19 +9,28 @@ import subprocess
 import threading
 from subprocess import call, run
 
+PROJECT_ROOT = Path.cwd()
+
+TESTS_DIR = os.path.join(PROJECT_ROOT, "tests")
+os.makedirs(TESTS_DIR, exist_ok=True)
+
+BASE_DIR = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+CLASSES_DIR = os.path.join(PROJECT_ROOT, "classes")
+sys.path.append(CLASSES_DIR)
+
+os.environ["CLASSES_DIR"] = CLASSES_DIR
+
+HTML_FILE = os.path.join(BASE_DIR, "gui", "public", "html", "index.html")
 
 class Api:
     def __init__(self):
         self.process = None
 
     def get_main_repo(self):
-        cwd = Path.cwd()
-        main_repo = cwd.parent.parent.parent
-        return main_repo
+        return BASE_DIR
     
     def get_default_test_folder(self):
-        main_repo = self.get_main_repo()
-        return os.path.join(main_repo, 'test')
+        return TESTS_DIR
     
     def get_files_in_folder(self, folder_path):
         folder = Path(folder_path)
@@ -28,6 +38,10 @@ class Api:
         return files
 
     def run_test(self, folder, tests):
+        if len(tests) == 0:
+            window.evaluate_js("alert('Choose one or more tests to run')")
+            return
+
         def worker():
             command_args = ["python", "-u", "-m", "unittest"]
             command_args.extend(tests)  
@@ -61,11 +75,11 @@ class Api:
         return "stopped"
     
     def get_edit_test_page_url(self):
-        test_edit_html = os.path.join(cwd, 'public', 'html', 'test-edit.html')
+        test_edit_html = os.path.join(BASE_DIR, 'gui', 'public', 'html', 'test-edit.html')
         return test_edit_html
     
     def get_index_page_url(self):
-        return index_html
+        return HTML_FILE
 
     def format_commands(self, file_path):
         command = ""
@@ -444,9 +458,14 @@ class Api:
         
         header = f'''
 import os
-from OPTest import OPTestAPIv2
-from OPTest import OPTestGRCObject
+import sys
 import unittest
+
+CLASSES_DIR = os.environ['CLASSES_DIR']
+sys.path.append(CLASSES_DIR)
+
+from OPTestAPIv2 import OPTestAPIv2
+from OPTestGRCObject import OPTestGRCObject
 
 def setUpModule():
     op_url = os.environ['OP_URL']
@@ -529,10 +548,12 @@ class TestScript{name}(unittest.TestCase):
             pass
         return full_path
     
-    def load_env_variables(self, url, username, password):
-        os.environ['OP_URL'] = url
-        os.environ['OP_USERNAME'] = username
-        os.environ['OP_PASSWORD'] = password
+    def load_env_variables(self, full_path):
+        data = self.get_data_env_file(full_path)
+
+        os.environ['OP_URL'] = data['url']
+        os.environ['OP_USERNAME'] = data['username']
+        os.environ['OP_PASSWORD'] = data['password']
 
 if __name__ == "__main__":
     webview.settings = {
@@ -546,18 +567,22 @@ if __name__ == "__main__":
         'SHOW_DEFAULT_MENUS': True
     }
 
-    cwd = Path.cwd()
-    main_repo = cwd.parent.parent.parent
-    index_html = os.path.join(cwd, 'public', 'html', 'index.html')
+import traceback
 
+try:
     api = Api()
-    window = webview.create_window(f'OPTest v{version("OPTest")}', f"file://{index_html}", js_api=api)
+    window = webview.create_window(f'OPTest v0.0.1', f"file://{HTML_FILE}", js_api=api)
     
     def on_closed():
         api.stop_test()
 
     window.events.closing += on_closed
     
-    webview.start(debug=True)
+    webview.start(gui='edgechromium')
 
-    default_test_folder = os.path.join(main_repo, 'test')
+    default_test_folder = os.path.join(BASE_DIR, 'test')
+
+except Exception as e:
+    with open("error_log.txt", "w") as f:
+        f.write(traceback.format_exc())
+    input("Error. Press ENTER to exit.")

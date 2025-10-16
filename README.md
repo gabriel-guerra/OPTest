@@ -1,12 +1,17 @@
 # OPTest
 Test framework for IBM OpenPages
 
-## Local installation
-1. Clone this repository
-2. Create a `.env` file in the folder `/OPTest` following the model in `.env_file_model.txt`
-3. Open a command terminal in `/OPTest` location 
-4. Run the command `pip install .`
-5. Create test cases in `/OPTest/test` starting with the name pattern `test_[...].py`
-6. To run all tests, access location `/OPTest/test` and run the following command:
-   * For Windows: `python -m unittest`
-   * For Linux: `python3 -m unittest`
+## Installation
+
+- Download Python 
+   - Recommended version: [3.12.8](https://www.python.org/downloads/windows/)
+- Clone repository
+- Run "script_installation.bat" to install dependencies
+- Run OPTest access the GUI
+
+## Set up environment variables
+
+- At the GUI, click on the cog to access settings
+<img width="781" height="446" alt="image" src="https://github.com/user-attachments/assets/3cb7324e-d4db-4cf1-b447-274d4ee1afd0" />
+
+- Setup URL, username and password to connect to the environment

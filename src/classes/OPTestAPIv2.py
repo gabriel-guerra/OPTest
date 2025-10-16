@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from urllib3.util.retry import Retry
 import requests
 from requests.adapters import HTTPAdapter
-from OPTest.utils import log_info, log_response, log_caller_file
+from utils import log_info, log_response, log_caller_file
 
 def generate_base64(user, password):
     credenciais = f"{user}:{password}"

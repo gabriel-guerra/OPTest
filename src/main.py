@@ -9,13 +9,13 @@ import subprocess
 import threading
 from subprocess import call, run
 
-PROJECT_ROOT = os.path.dirname(sys.executable)
+PROJECT_ROOT = Path.cwd()
 
 TESTS_DIR = os.path.join(PROJECT_ROOT, "tests")
 os.makedirs(TESTS_DIR, exist_ok=True)
 
 BASE_DIR = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-CLASSES_DIR = os.path.join(PROJECT_ROOT, "_internal", "classes")
+CLASSES_DIR = os.path.join(PROJECT_ROOT, "classes")
 sys.path.append(CLASSES_DIR)
 
 os.environ["CLASSES_DIR"] = CLASSES_DIR
@@ -574,7 +574,7 @@ try:
 
     window.events.closing += on_closed
     
-    webview.start()
+    webview.start(gui='edgechromium')
 
     default_test_folder = os.path.join(BASE_DIR, 'test')
 

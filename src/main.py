@@ -38,6 +38,10 @@ class Api:
         return files
 
     def run_test(self, folder, tests):
+        if len(tests) == 0:
+            window.evaluate_js("alert('Choose one or more tests to run')")
+            return
+
         def worker():
             command_args = ["python", "-u", "-m", "unittest"]
             command_args.extend(tests)  

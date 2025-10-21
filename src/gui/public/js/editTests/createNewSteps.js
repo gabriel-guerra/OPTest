@@ -92,6 +92,8 @@ function newUpdateOnAssociateView(){
 // Start Workflow
 
 function newStartWorkflowView(){
+    clearDetailsStartWorkflow()
+
     if (document.getElementById("menu-start_workflow").classList.contains("show")) return
     openPopUpMenu("menu-start_workflow")
 
@@ -111,6 +113,8 @@ function newStartWorkflowView(){
 // Transition Workflow
 
 function newTransitionWorkflowView(){
+    clearDetailsTransitionWorkflow()
+
     if (document.getElementById("menu-transition_workflow").classList.contains("show")) return
     openPopUpMenu("menu-transition_workflow")
 
@@ -129,6 +133,8 @@ function newTransitionWorkflowView(){
 // Delete Object
 
 function newDeleteView(){
+    clearDetailsDeleteObject()
+
     if (document.getElementById("menu-delete-object").classList.contains("show")) return
     openPopUpMenu("menu-delete-object")
 

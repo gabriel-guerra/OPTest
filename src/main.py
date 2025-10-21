@@ -571,7 +571,7 @@ import traceback
 
 try:
     api = Api()
-    window = webview.create_window(f'OPTest v0.0.1', f"file://{HTML_FILE}", js_api=api)
+    window = webview.create_window(f'OPTest v0.0.4', f"file://{HTML_FILE}", js_api=api)
     
     def on_closed():
         api.stop_test()

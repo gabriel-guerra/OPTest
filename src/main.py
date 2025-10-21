@@ -621,7 +621,7 @@ try:
 
     window.events.closing += on_closed
     
-    webview.start(gui='edgechromium', debug=True)
+    webview.start(gui='edgechromium')
 
     default_test_folder = os.path.join(BASE_DIR, 'test')
 

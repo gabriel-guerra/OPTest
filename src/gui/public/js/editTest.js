@@ -4,24 +4,12 @@ setH1Element()
 buildActionsTable()
 
 // counters for table rows
-localStorage.setItem('trf', '0')
-localStorage.setItem('trp', '0')
 localStorage.setItem('trc', '0')
 
 function getConterTableRows(counterType){
-    if (counterType === 'trf'){
-        let trf = Number(localStorage.getItem('trf'))
-        localStorage.setItem('trf', `${trf+1}`)
-        return trf
-    }else if (counterType === 'trp'){
-        let trp = Number(localStorage.getItem('trp'))
-        localStorage.setItem('trp', `${trp+1}`)
-        return trp
-    }else if (counterType === 'trc'){
-        let trc = Number(localStorage.getItem('trc'))
-        localStorage.setItem('trc', `${trc+1}`)
-        return trc
-    }
+    let trc = Number(localStorage.getItem('trc'))
+    localStorage.setItem('trc', `${trc+1}`)
+    return trc
 }
 
 function setH1Element(){
@@ -76,6 +64,9 @@ function getDetails(button){
             break
         case "delete_object":
             buildDeleteView(uuid, steps)
+            break
+        case 'add_associate_object': 
+            buildAddAssociationView(uuid, steps)
             break
         default:
             alert('not found')

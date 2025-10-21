@@ -1,3 +1,4 @@
+
 import os
 import sys
 import unittest
@@ -29,6 +30,7 @@ class TestScriptTestWfSoxissue(unittest.TestCase):
         self.opt_object.update_field_associate_objects('child', 'SOXTask', [('OPSS-AI:Status', 'Closed')])
         self.opt_object.transition_workflow('Close')
         self.opt_object.start_workflow('Issue Review Workflow')
+        self.opt_object.add_association('parent', [20392])
 
     def tearDown(self):
         self.opt_object.delete()     #safe_delete

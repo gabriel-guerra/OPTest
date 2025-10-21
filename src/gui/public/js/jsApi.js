@@ -16,6 +16,8 @@ document.querySelectorAll('form').forEach(form => {
             saveUpdateOnAssociateData()
         }else if (action === 'delete_object'){
             saveDeleteData()
+        }else if (action === 'add_associate_object'){
+            saveAddAssociationData()
         }else if (action === 'save_new_test'){
             saveNewTest()
         }else if (action === 'env_file'){

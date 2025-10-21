@@ -50,6 +50,9 @@ class OPTestGRCObject:
     def delete(self):
         self.api.delete_resource(self.id)
 
+    def add_association(self, association_type, associations):
+        self.api.create_associations(association_type, self.id, associations)
+
 
     # Workflow 
     def get_wf_instance(self):

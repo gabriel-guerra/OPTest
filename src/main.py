@@ -140,6 +140,9 @@ class Api:
             elif 'update_field_associate_objects' in c:
                 step = self.parse_update_field_associate_objects(c, test_steps)
                 test_steps[f"{step['uuid']}"] = step
+            elif 'add_association' in c:
+                step = self.parse_add_association_objects(c, test_steps)
+                test_steps[f"{step['uuid']}"] = step
 
         return test_steps
     
@@ -341,7 +344,38 @@ class Api:
                 }
                 return step
         raise Exception("Didn't find object to update fields.")
-            
+
+    def parse_add_association_objects(self, command, all_steps):
+        uuid_code = uuid.uuid4()
+        
+        # Get object name
+        tmp = command[command.find('.')+1:]
+        object_name = tmp[:tmp.find('.')]
+
+        for value in all_steps.values():
+            if value['reference'] == object_name:
+                
+                # Get only params
+                params_raw = command[command.find('(')+1:-1]
+
+                # Format in a list 
+                s = str(params_raw)
+                s_list = "[" + s + "]"
+                params_list = ast.literal_eval(s_list)
+
+                step = {
+                    "uuid": f"{uuid_code}",
+                    "reference": f"{object_name}",
+                    "action_type": "add_associate_object",
+                    "action_information": f"Associate {params_list[0]} to {value['additional_information']['name']}",
+                    "additional_information": {
+                        "association_type": f"{params_list[0]}",
+                        "association_list": params_list[1],
+                    }
+                }
+                return step
+        raise Exception("Didn't find object to add associations.")
+    
     def save_operations_data(self, path_env_file, folder, test, operations):
         full_path = os.path.join(folder, test)
         testName = test.replace(".py", "")
@@ -378,6 +412,8 @@ class Api:
                 commands.append(self.build_start_workflow_command(v))
             elif v['action_type'] == 'update_field_associate_objects':
                 commands.append(self.build_update_field_associate_object_command(v))
+            elif v['action_type'] == 'add_associate_object':
+                commands.append(self.build_add_association_command(v))
 
         if len(referenced_to_delete) > 0:
             safe_delete = self.build_safe_delete_command(referenced_to_delete)
@@ -447,6 +483,13 @@ class Api:
         reference = operation['reference']
 
         command = f"self.{reference}.transition_workflow('{operation['additional_information']['action_name']}')"
+        return command
+    
+    def build_add_association_command(self, operation):
+        reference = operation['reference']
+        int_list = [int(number) for number in operation['additional_information']['association_list']]
+
+        command = f"self.{reference}.add_association('{operation['additional_information']['association_type']}', {int_list})"
         return command
     
     def format_reference(self, string):
@@ -578,7 +621,7 @@ try:
 
     window.events.closing += on_closed
     
-    webview.start(gui='edgechromium')
+    webview.start(gui='edgechromium', debug=True)
 
     default_test_folder = os.path.join(BASE_DIR, 'test')
 

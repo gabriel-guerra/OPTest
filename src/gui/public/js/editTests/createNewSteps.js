@@ -16,19 +16,19 @@ function newCreateObjectView(){
     
     // table fields
     const row_fields = document.createElement('tr')
-    row_fields.id = `creation_fields_tr_${getConterTableRows('trf')}`
+    row_fields.id = `creation_fields_tr_${getConterTableRows('trc')}`
     const newRowFields = prepareEmptyRow(row_fields)
     tbodyFields.appendChild(newRowFields)
 
     // table parents
     const row_parents = document.createElement('tr')
-    row_parents.id = `creation_parents_tr_${getConterTableRows('trf')}`
+    row_parents.id = `creation_parents_tr_${getConterTableRows('trc')}`
     const newRowParents = prepareEmptyRow(row_parents)
     tbodyParents.appendChild(newRowParents)
 
     // table children
     const row_children = document.createElement('tr')
-    row_children.id = `creation_children_tr_${getConterTableRows('trp')}`
+    row_children.id = `creation_children_tr_${getConterTableRows('trc')}`
     const newRowChildren = prepareEmptyRow(row_children)
     tbodyChildren.appendChild(newRowChildren)
 }
@@ -54,7 +54,7 @@ function newUpdateFieldsView(){
     saveButton.setAttribute('uuid', uuid)
     
     const row = document.createElement('tr')
-    row.id = `update_fields_tr_${getConterTableRows('trf')}`
+    row.id = `update_fields_tr_${getConterTableRows('trc')}`
     const newRowFields = prepareEmptyRow(row)
     tbodyFields.appendChild(newRowFields)
 }
@@ -82,7 +82,7 @@ function newUpdateOnAssociateView(){
     saveButton.setAttribute('uuid', uuid)
     
     const row = document.createElement('tr')
-    row.id = `associate_fields_tr_${getConterTableRows('trf')}`
+    row.id = `associate_fields_tr_${getConterTableRows('trc')}`
     const newRowFields = prepareEmptyRow(row)
     tbodyFields.appendChild(newRowFields)
 }
@@ -146,5 +146,33 @@ function newDeleteView(){
     fillNewSelectsPopupMenu(objects, nameElement)
     
     saveButton.setAttribute('uuid', uuid)
+
+}
+
+
+// New Associations
+function newAssociationView(){
+    clearDetailsNewAssociation()
+
+    // Open Dialog menu
+    if (document.getElementById("menu-add-associate-object").classList.contains("show")) return
+    openPopUpMenu("menu-add-associate-object")
+    
+    // Find save button and add uuid code on it
+    const saveButton = document.getElementById('add-associate-object-save-button')
+    const uuid = crypto.randomUUID()
+    saveButton.setAttribute('uuid', uuid)
+
+    // Fill Select with objects previously loaded into test scope
+    const nameElement = document.getElementById('select-add-associate-object-name')
+    const objects = findOPTObjectsDeclared(uuid)
+    fillNewSelectsPopupMenu(objects, nameElement)
+    
+    // Fill table with empty row
+    const tbodyAssociate = document.getElementById('add_associate_tbody')
+    const row = document.createElement('tr')
+    row.id = `creation_parents_tr_${getConterTableRows('trc')}`
+    const newRow = prepareEmptyRow(row)
+    tbodyAssociate.appendChild(newRow)
 
 }

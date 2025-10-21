@@ -246,3 +246,40 @@ function saveDeleteData(){
     closePopUpMenu('menu-delete-object')
 
 }
+
+function saveAddAssociationData(){
+    const saveButton = document.getElementById('add-associate-object-save-button')
+    const uuid = saveButton.getAttribute('uuid')
+    saveButton.setAttribute("uuid", "")
+
+    if (uuid){
+        const name = document.getElementById('select-add-associate-object-name')
+        const associationTypeElement = document.getElementById('input-add-associate-object-type')
+        const associationType = associationTypeElement.selectedOptions[0]
+        
+        const associations = []
+        
+        for (const row of document.querySelectorAll('#add_associate_tbody > tr:not(:first-child)')) {
+            const cells = row.children
+            const fistCellChild = cells[0].firstChild
+            if (fistCellChild.value === "") continue
+            associations.push(fistCellChild.value)
+        }
+        
+        const formatName = name.value.replace(/ /g, "_").replace(/-/g, "_").toLowerCase()
+        const newValues = {
+            "uuid": `${uuid}`,
+            "reference": formatName,
+            "action_type": "add_associate_object",
+            "action_information": `Associate ${associationType.value} to ${name.value}`,
+            "additional_information": {
+                "association_type": associationType.value,
+                "association_list": associations,
+            }
+        }
+                
+        operations[uuid] = newValues
+    }
+
+    closePopUpMenu('menu-add-associate-object')
+}

@@ -120,8 +120,12 @@ class Api:
 
         for c in raw_commands:
             if 'OPTestGRCObject' in c:
-                step = self.parse_create_object(c)
-                test_steps[f"{step['uuid']}"] = step
+                if 'load_existing_object' in c:
+                    step = self.parse_load_existing_object(c)
+                    test_steps[f"{step['uuid']}"] = step
+                else:
+                    step = self.parse_create_object(c)
+                    test_steps[f"{step['uuid']}"] = step
             elif 'delete' in c:
                 if 'safe_delete' in c:
                     self.add_safe_delete(c, test_steps)
@@ -272,7 +276,7 @@ class Api:
                     "action_type": "transition_workflow",
                     "action_information": f"Transition to {param} on {value['additional_information']['name']}",
                     "additional_information": {
-                        "type_definition": f"{value['additional_information']['type_definition']}",
+####################### "type_definition": f"{value['additional_information']['type_definition']}",
                         "name": f"{value['additional_information']['name']}",
                         "action_name": f'{param}'
                     }
@@ -376,6 +380,33 @@ class Api:
                 return step
         raise Exception("Didn't find object to add associations.")
     
+    def parse_load_existing_object(self, command):
+        uuid_code = uuid.uuid4()
+        
+        # Get object name
+        tmp = command[command.find('.')+1:]
+        object_name = tmp[:tmp.find(' ')]
+        
+        # Get only params
+        params_raw = command[command.find('(')+1:-1]
+
+        # Format in a list 
+        params_list = params_raw.split(',')
+        type_definition = params_list[1].strip()[1:-1]
+        name = params_list[2].strip()[1:-1]
+
+        step = {
+            "uuid": f"{uuid_code}",
+            "reference": f"{object_name}",
+            "action_type": "load_existing_object",
+            "action_information": f"Load GRC object {name}",
+            "additional_information": {
+                "type_definition": type_definition,
+                "name": name
+            }
+        }
+        return step
+    
     def save_operations_data(self, path_env_file, folder, test, operations):
         full_path = os.path.join(folder, test)
         testName = test.replace(".py", "")
@@ -414,6 +445,8 @@ class Api:
                 commands.append(self.build_update_field_associate_object_command(v))
             elif v['action_type'] == 'add_associate_object':
                 commands.append(self.build_add_association_command(v))
+            elif v['action_type'] == 'load_existing_object':
+                commands.append(self.build_load_existing_object_command(v))
 
         if len(referenced_to_delete) > 0:
             safe_delete = self.build_safe_delete_command(referenced_to_delete)
@@ -490,6 +523,12 @@ class Api:
         int_list = [int(number) for number in operation['additional_information']['association_list']]
 
         command = f"self.{reference}.add_association('{operation['additional_information']['association_type']}', {int_list})"
+        return command
+    
+    def build_load_existing_object_command(self, operation):
+        reference = operation['reference']
+
+        command = f"self.{reference} = OPTestGRCObject.load_existing_object(api, '{operation['additional_information']['type_definition']}', '{operation['additional_information']['name']}')"
         return command
     
     def format_reference(self, string):
@@ -621,7 +660,7 @@ try:
 
     window.events.closing += on_closed
     
-    webview.start(gui='edgechromium')
+    webview.start(gui='edgechromium', debug=True)
 
     default_test_folder = os.path.join(BASE_DIR, 'test')
 

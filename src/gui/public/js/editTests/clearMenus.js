@@ -111,3 +111,6 @@ function clearDetailsNewAssociation(){
         </tbody>
     `
 }
+
+function clearDetailsLoadExistingObject(){
+}

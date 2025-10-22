@@ -309,10 +309,6 @@ function buildAddAssociationView(uuid, steps){
     const objects = findOPTObjectsDeclared(uuid)
     fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
 
-    console.log(steps.additional_information.association_list)
-    console.log(typeof steps.additional_information.association_list)
-    console.log(steps.additional_information.association_list.length > 0)
-
     if (steps.additional_information.association_list.length > 0){
         for (const parent of steps.additional_information.association_list){
             const row = document.createElement('tr')
@@ -325,5 +321,22 @@ function buildAddAssociationView(uuid, steps){
             tbodyAssociation.appendChild(newRow)
         }
     }
+
+}
+
+function buildLoadExistingObjectView(uuid, steps){
+    clearDetailsNewAssociation()
+
+    // Open Dialog menu
+    if (document.getElementById("menu-load-existing-object").classList.contains("show")) return
+    openPopUpMenu("menu-load-existing-object")
+
+    const nameElement = document.getElementById('input-load-existing-object-name')
+    const typeElement = document.getElementById('input-load-existing-object-type')
+    const saveButton = document.getElementById('load-existing-object-save-button')
+    saveButton.setAttribute('uuid', uuid)
+
+    nameElement.value = steps.additional_information.name
+    typeElement.value = steps.additional_information.type_definition
 
 }

@@ -176,3 +176,18 @@ function newAssociationView(){
     tbodyAssociate.appendChild(newRow)
 
 }
+
+// Load Existing objects
+function newLoadExistingObjectView(){
+    clearDetailsLoadExistingObject()
+
+    // Open Dialog menu
+    if (document.getElementById("menu-load-existing-object").classList.contains("show")) return
+    openPopUpMenu("menu-load-existing-object")
+
+    // Find save button and add uuid code on it
+    const saveButton = document.getElementById('load-existing-object-save-button')
+    const uuid = crypto.randomUUID()
+    saveButton.setAttribute('uuid', uuid)
+
+}

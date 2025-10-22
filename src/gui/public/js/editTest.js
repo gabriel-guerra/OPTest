@@ -68,6 +68,9 @@ function getDetails(button){
         case 'add_associate_object': 
             buildAddAssociationView(uuid, steps)
             break
+        case 'load_existing_object': 
+            buildLoadExistingObjectView(uuid, steps)
+            break
         default:
             alert('not found')
     }
@@ -219,7 +222,7 @@ function setMultivalueEventListener(li){
 function findOPTObjectsDeclared(uuid){
     let objects = []
     for (const op of Object.values(operations)){
-        if (op.action_type === 'create_object'){
+        if (op.action_type === 'create_object' || op.action_type === 'load_existing_object'){
             objects.push(op)
         }
 

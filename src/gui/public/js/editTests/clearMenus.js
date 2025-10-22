@@ -93,3 +93,24 @@ function clearDetailsDeleteObject(){
     <option value="" disabled selected>Select an object</option>
     `
 }
+
+function clearDetailsNewAssociation(){
+    const addAssociationTable = document.getElementById("table-add-associate-object")
+    const selectUpdate = document.getElementById('select-add-associate-object-name')
+    
+    selectUpdate.innerHTML = `
+    <option value="" disabled selected>Select an object</option>
+    `
+    
+    addAssociationTable.innerHTML = `
+        <tbody id="add_associate_tbody">
+            <tr>
+                <th>Object ID</th>
+                <th>Action</th>
+            </tr>
+        </tbody>
+    `
+}
+
+function clearDetailsLoadExistingObject(){
+}

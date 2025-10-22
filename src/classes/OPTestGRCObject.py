@@ -1,25 +1,43 @@
 class OPTestGRCObject:
-    def __init__(self, api, type_definition, name, description, primary_parent_id, fields_list, parents_list, children_list):
+    def __init__(self, api, type_definition, name, description, primary_parent_id, fields_list, parents_list, children_list, id=None):
         self.api = api
         self.name = name
         self.description = description
         self.type_definition = type_definition
         self.primary_parent_id = primary_parent_id
-        self.parents = parents_list
-        self.children = children_list
         self.GRC_definition = self.api._req_type_definition(self.type_definition)
-        first_payload = {
-            "name": f"{self.name}",
-            "description": f"{self.description}",
-            "type_definition_id": f"{self.GRC_definition['id']}",
-            "primary_parent_id": f"{self.primary_parent_id}",
-            "fields": self.parse_fields(self.type_definition, fields_list),
-            "parents": self.parents,
-            "children": self.children
-        }
-        self.op_json = self.api.create_resource(first_payload, return_created_object=True)
-        self.id = self.op_json['id']
+        if id is not None:
+            self.id = id
+        else:
+            first_payload = {
+                "name": f"{self.name}",
+                "description": f"{self.description}",
+                "type_definition_id": f"{self.GRC_definition['id']}",
+                "primary_parent_id": f"{self.primary_parent_id}",
+                "fields": self.parse_fields(self.type_definition, fields_list),
+                "parents": parents_list,
+                "children": children_list
+            }
+            op_json = self.api.create_resource(first_payload, return_created_object=True)
+            self.id = op_json['id']
         self.workflow = self.get_wf_instance()
+
+    @classmethod
+    def load_existing_object(cls, api, type_definition, name):
+        grc_object = api.load_GRCObject(type_definition, name)
+        opt_object = cls(
+            api, 
+            type_definition, 
+            grc_object['name'], 
+            grc_object.get('description', ''),
+            grc_object['primary_parent_id'], 
+            [],
+            [], 
+            [],
+            id=grc_object['id']
+        )
+        return opt_object
+
 
 
     # CRUD
@@ -49,6 +67,9 @@ class OPTestGRCObject:
 
     def delete(self):
         self.api.delete_resource(self.id)
+
+    def add_association(self, association_type, associations):
+        self.api.create_associations(association_type, self.id, associations)
 
 
     # Workflow 

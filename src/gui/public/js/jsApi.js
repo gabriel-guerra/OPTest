@@ -16,6 +16,10 @@ document.querySelectorAll('form').forEach(form => {
             saveUpdateOnAssociateData()
         }else if (action === 'delete_object'){
             saveDeleteData()
+        }else if (action === 'add_associate_object'){
+            saveAddAssociationData()
+        }else if (action === 'load_existing_object'){
+            saveLoadExistingObjectData()
         }else if (action === 'save_new_test'){
             saveNewTest()
         }else if (action === 'env_file'){
@@ -126,6 +130,11 @@ async function loadIndexPage(){
 }
 
 async function returnToIndexPage(){
+    clearLocalStorage()
+    await loadIndexPage()
+}
+
+async function saveAndReturnToIndexPage(){
     saveOperationsData()
 
     // Get localStorage data
@@ -136,8 +145,7 @@ async function returnToIndexPage(){
 
     await pywebview.api.save_operations_data(pathEnvFile, folderPath, testName, operations)
     
-    clearLocalStorage()
-    await loadIndexPage()
+    await returnToIndexPage()
 }
 
 /**

@@ -112,6 +112,11 @@ class OPTestAPIv2():
             if definition['name'] == wf_name:
                 return definition
         return None
+    
+    def _req_object_by_id(self, object_id):
+        res = self.session.get(f'{self.base_url}/contents/{object_id}')
+        log_response(res, 200)
+        return res.json()
 
     def _req_objectName_by_id(self, object_id):
         res = self.session.get(f'{self.base_url}/contents/{object_id}')
@@ -235,3 +240,7 @@ class OPTestAPIv2():
         log_info(f"Deleting object {object_id}")
         res = self.session.delete(f"{self.base_url}/contents/{object_id}", headers=self.headers, timeout=TIMEOUT, verify=False)
         log_response(res, 204)
+
+    def load_GRCObject(self, type_definition, name):
+        object_id = self._req_objectId_by_name(type_definition, name)
+        return self._req_object_by_id(object_id)

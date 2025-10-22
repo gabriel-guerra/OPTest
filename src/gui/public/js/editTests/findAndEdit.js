@@ -27,7 +27,7 @@ function buildCreateObjectView(uuid, steps){
         for (const obj of steps.additional_information.fields_list){
             for (const [key, value] of Object.entries(obj)){
                 const row = document.createElement('tr')
-                row.id = `creation_fields_tr_${getConterTableRows('trf')}`
+                row.id = `creation_fields_tr_${getConterTableRows('trc')}`
                 const newRow = prepareEmptyRow(row)
            
                 const rowChildren = newRow.children
@@ -62,7 +62,7 @@ function buildCreateObjectView(uuid, steps){
         }
     }else{
         const row = document.createElement('tr')
-        row.id = `creation_fields_tr_${getConterTableRows('trf')}`
+        row.id = `creation_fields_tr_${getConterTableRows('trc')}`
         const newRow = prepareEmptyRow(row)
         tbodyFields.appendChild(newRow)
     }
@@ -70,7 +70,7 @@ function buildCreateObjectView(uuid, steps){
     if (steps.additional_information.parents_list.length > 0){
         for (const parent of steps.additional_information.parents_list){
             const row = document.createElement('tr')
-            row.id = `creation_parents_tr_${getConterTableRows('trp')}`
+            row.id = `creation_parents_tr_${getConterTableRows('trc')}`
             const newRow = prepareEmptyRow(row)
             
             const rowChildren = newRow.children[0].children
@@ -80,7 +80,7 @@ function buildCreateObjectView(uuid, steps){
         }
     }else{
         const row = document.createElement('tr')
-        row.id = `creation_parents_tr_${getConterTableRows('trp')}`
+        row.id = `creation_parents_tr_${getConterTableRows('trc')}`
         const newRow = prepareEmptyRow(row)
         tbodyParents.appendChild(newRow)
     }
@@ -124,7 +124,7 @@ function buildUpdateFieldsView(uuid, steps){
     for (const obj of steps.additional_information.fields_list){
         for (const [key, value] of Object.entries(obj)){
             const row = document.createElement('tr')
-            row.id = `update_fields_tr_${getConterTableRows('trf')}`
+            row.id = `update_fields_tr_${getConterTableRows('trc')}`
             const newRow = prepareEmptyRow(row)
            
             const rowChildren = newRow.children
@@ -191,7 +191,7 @@ function buildUpdateOnAssociateView(uuid, steps){
     for (const obj of steps.additional_information.fields_list){
         for (const [key, value] of Object.entries(obj)){
             const row = document.createElement('tr')
-            row.id = `associate_fields_tr_${getConterTableRows('trf')}`
+            row.id = `associate_fields_tr_${getConterTableRows('trc')}`
             const newRow = prepareEmptyRow(row)
            
             const rowChildren = newRow.children
@@ -283,5 +283,60 @@ function buildDeleteView(uuid, steps){
     fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
 
     saveButton.setAttribute('uuid', uuid)
+
+}
+
+function buildAddAssociationView(uuid, steps){
+    clearDetailsNewAssociation()
+
+    // Open Dialog menu
+    if (document.getElementById("menu-add-associate-object").classList.contains("show")) return
+    openPopUpMenu("menu-add-associate-object")
+
+    const nameElement = document.getElementById('select-add-associate-object-name')
+    const associationTypeElement = document.getElementById('input-add-associate-object-type')
+    
+    for (const childElement of associationTypeElement.children){
+        if (childElement.value === steps.additional_information.association_type){
+            childElement.setAttribute("selected", "true")
+        }
+    }
+        
+    const tbodyAssociation = document.getElementById('add_associate_tbody')
+    const saveButton = document.getElementById('add-associate-object-save-button')
+    saveButton.setAttribute('uuid', uuid)
+
+    const objects = findOPTObjectsDeclared(uuid)
+    fillFindAndEditSelectsPopupMenu(objects, nameElement, steps)
+
+    if (steps.additional_information.association_list.length > 0){
+        for (const parent of steps.additional_information.association_list){
+            const row = document.createElement('tr')
+            row.id = `creation_parents_tr_${getConterTableRows('trc')}`
+            const newRow = prepareEmptyRow(row)
+            
+            const rowChildren = newRow.children[0].children
+            rowChildren[0].value = parent
+            
+            tbodyAssociation.appendChild(newRow)
+        }
+    }
+
+}
+
+function buildLoadExistingObjectView(uuid, steps){
+    clearDetailsNewAssociation()
+
+    // Open Dialog menu
+    if (document.getElementById("menu-load-existing-object").classList.contains("show")) return
+    openPopUpMenu("menu-load-existing-object")
+
+    const nameElement = document.getElementById('input-load-existing-object-name')
+    const typeElement = document.getElementById('input-load-existing-object-type')
+    const saveButton = document.getElementById('load-existing-object-save-button')
+    saveButton.setAttribute('uuid', uuid)
+
+    nameElement.value = steps.additional_information.name
+    typeElement.value = steps.additional_information.type_definition
 
 }

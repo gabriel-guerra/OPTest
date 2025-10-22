@@ -1,3 +1,4 @@
+
 import os
 import sys
 import unittest
@@ -19,8 +20,8 @@ def setUpModule():
 def tearDownModule():
     pass
 
-class TestScriptTestWfSoxissue(unittest.TestCase):
-    def test_test_wf_soxissue(self):
+class TestScriptTestWfSoxissueCreateNew(unittest.TestCase):
+    def test_test_wf_soxissue_create_new(self):
         self.opt_object = OPTestGRCObject(api, 'SOXIssue', 'OPT Object', 'Example Description', 3156, [('OPSS-Iss:Priority', 'High')], [27699], [15713])
         self.opt_object.bulk_update_fields([('OPSS-Iss:Additional Description', 'Low'), ('OPSS-Iss:Issue Type', 'Scoping'), ('OPSS-Iss:Issue Approver', 'OpenPagesAdministrator'), ('OPSS-Iss:Domain', ['Compliance', 'Technology', 'Operational'])])
         self.opt_object.transition_workflow('Submit for review')
@@ -29,6 +30,7 @@ class TestScriptTestWfSoxissue(unittest.TestCase):
         self.opt_object.update_field_associate_objects('child', 'SOXTask', [('OPSS-AI:Status', 'Closed')])
         self.opt_object.transition_workflow('Close')
         self.opt_object.start_workflow('Issue Review Workflow')
+        self.opt_object.add_association('parent', [20392])
 
     def tearDown(self):
         self.opt_object.delete()     #safe_delete
